@@ -139,6 +139,87 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://sideolobes.github.io/2020/03/17/C++(%E5%AF%B9%E8%B1%A1%E5%92%8C%E7%B1%BB)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Sideolobes">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/03/17/C++(%E5%AF%B9%E8%B1%A1%E5%92%8C%E7%B1%BB)/" class="post-title-link" itemprop="url">C++(对象和类)</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-03-17 15:38:22 / 修改时间：15:38:07" itemprop="dateCreated datePublished" datetime="2020-03-17T15:38:22+08:00">2020-03-17</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Tonight.Moon=<span class="string">"How beautiful"</span>;</span><br><span class="line">Tonight.Wind=<span class="string">"How blandness"</span>;</span><br><span class="line">Tonight.You =<span class="string">"Blandness,too"</span>;</span><br></pre></td></tr></table></figure>
+<h2 id="过程性编程和面向对象的编程区别"><a href="#过程性编程和面向对象的编程区别" class="headerlink" title="过程性编程和面向对象的编程区别"></a>过程性编程和面向对象的编程区别</h2><p>采用<strong>过程性编程</strong>方法时，首先要考虑遵循的步骤，然后考虑如何表示这些数据<br>采用<strong>OOP方法</strong>时，首先从用户的角度考虑对象——描述对象所需的数据以及描述用户与数据交互所需的操作。完成对接口的描述后，需要确定如何实现接口和数据存储，最后使用新设计方案创建出程序</p>
+<h2 id="C语言struct和C-struct区别"><a href="#C语言struct和C-struct区别" class="headerlink" title="C语言struct和C++struct区别"></a>C语言struct和C++struct区别</h2><p>1）C语言中，struct是<strong>用户自定义数据类型</strong>（UDT），而C++中struct是<strong>抽象数据类型</strong>（ADT），类似于类，<strong>支持成员函数的定义</strong>。<strong>C++中struct可以继承，能实现多态</strong><br>2）C中没有权限设置，struct只能是变量体的集合，可以封装数据但不可以隐藏数据，不支持成员函数定义<br>3）C++中有权限设置，默认成员访问说明符是public（为了与C兼容），而类是private;增加了访问权限<br>4）struct作为类的一种特例是用来自定义数据结构的。在C中声明结构体后要在结构标记前加上struct来定义结构类型</p>
+<h2 id="友元"><a href="#友元" class="headerlink" title="友元"></a>友元</h2><p>友元有三种：<strong>友元函数</strong>，<strong>友元类</strong>，<strong>友元成员函数</strong><br>通过让函数成为类的友元，可以赋予该函数与类的成员函数相同的访问权限</p>
+<h3 id="创建友元函数（类内声明，类外定义）"><a href="#创建友元函数（类内声明，类外定义）" class="headerlink" title="创建友元函数（类内声明，类外定义）"></a><strong>创建友元函数</strong>（<strong>类内声明，类外定义</strong>）</h3><p>1.将其原型放在<strong>类内声明</strong>，并且在原型前面加上<strong>关键字friend</strong>，也只有在类声明中才能使用该关键字<br><strong>为什么友元必须类内声明？</strong><br>注：编译器必须能够读取类结构的声明以理解这个数据类型的行为的所有规则，有一条规则在所有关系中都很重要，就是<strong>哪些数据成员可以访问类的私有数据</strong><br>2.<strong>类外定义</strong>，它不是类成员函数，所以不能使用类作用域限定符::;不要在定义中使用关键字friend<br>类的友元函数是<strong>非成员函数</strong>，其访问权限与成员函数相同</p>
+<h3 id="重载运算符：作为非成员函数还是成员函数"><a href="#重载运算符：作为非成员函数还是成员函数" class="headerlink" title="重载运算符：作为非成员函数还是成员函数"></a><strong>重载运算符：作为非成员函数还是成员函数</strong></h3><p>对于很多运算符来说，可以选择使用成员函数或非成员函数来实现运算符重载。 一般来说，非成员函数应是友元函数，这样才可以访问类的私有数据<br><strong>成员函数版本</strong>：一个操作数通过this指针隐式传递，另一个操作数作为函数参数显示传递<br><strong>非函数成员（友元）版本</strong>：两个操作数都作为参数传递<br>注意：非成员函数的重载运算符形参数目与运算符使用的操作数数目相同，成员函数所需参数少一个，因为其中一个操作数是被隐式传递的调用对象</p>
+<h2 id="类的自动转换和强制类型转换"><a href="#类的自动转换和强制类型转换" class="headerlink" title="类的自动转换和强制类型转换"></a>类的自动转换和强制类型转换</h2><p><strong>自动转换</strong>：将一个标准类型变量赋值给另一种标准类型变量时，如果这两种类型兼容，C++可以自动转换；C++不会自动转换不兼容的类型<br><strong>强制类型转换</strong>：当无法使用自动转换时，可以使用强制类型转换</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Stonewt::Stonewt(<span class="keyword">double</span> lbs)<span class="comment">//Stonewt的构造函数</span></span><br><span class="line">Stonewt myCat;<span class="comment">//创建一个Stonewt的对象myCat</span></span><br><span class="line">myCat=<span class="number">19.6</span>;<span class="comment">//赋值</span></span><br></pre></td></tr></table></figure>
+<p>上述程序中调用构造函数Stonewt::Stonewt(double lbs)来创建一个临时的Stonewt对象，并将19.6作为初始值，采用逐成员赋值方式将该临时对象的内容复制到myCat中，这一过程称为<strong>隐式转换</strong>。自动进行的，无需显示强制转换</p>
+<p><strong>只接受一个参数的构造函数</strong>定义了<strong>从参数类型到类类型的转换</strong>，此时构造函数就是转换函数。如果使用<strong>关键字explicit</strong>，则转换函数将只用于显式强制转换。(当且仅当转换不出现二义性，才会进行二步转换)</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">myCat=<span class="number">19.6</span>;<span class="comment">//no valid</span></span><br><span class="line">myCat=Stonewt(<span class="number">19.6</span>);<span class="comment">//valid,an explicit conversion</span></span><br></pre></td></tr></table></figure>
+<p>构造函数只用于从某种参数类型到类类型的转化，<strong>从类类型到参数类型的反向转换</strong>必须使用特殊的C++类成员运算符函数——转换函数<br>转换函数是类成员，没有返回类型，没有参数，名为operator typeName(),其中typeName是对象将被转换成的类型。将类对象赋给typeName变量或将其强制转换为typeName类型时，转换函数将自动被调用</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Stonewt <span class="title">wolfe</span><span class="params">(<span class="number">287.5</span>)</span></span>;</span><br><span class="line"><span class="keyword">double</span> host=<span class="keyword">double</span>(wolfe);</span><br></pre></td></tr></table></figure>
+<p><strong>转换函数operator typename();</strong><br>1)转换函数必须是<strong>类方法</strong><br>2)转换函数<strong>不能指定返回类型</strong><br>3)转换函数声明定义时<strong>不能有参数，需要通过类对象调用</strong>，从而告知函数要转换的参数</p>
+<h2 id="类和动态内存"><a href="#类和动态内存" class="headerlink" title="类和动态内存"></a>类和动态内存</h2><p>C++使用<strong>new和delete运算符</strong>来动态控制内存</p>
+<h3 id="静态类成员static"><a href="#静态类成员static" class="headerlink" title="静态类成员static"></a>静态类成员static</h3><p>1.静态类成员都有一个特点：无论创建了多少对象，程序都只创建<strong>一个静态类变量副本</strong><br>2.<strong>不能在类声明中初始化</strong>静态成员变量，因为声明描述了如何分配内存，但并不分配内存；对于静态类成员，可以在类声明之外单独初始化，因为<strong>静态类成员是单独存储，而不是对象的组成部分</strong>。<br>3.静态数据成员在类声明中声明，在包含类方法的文件中不加static初始化。初始化时使用作用域运算符来指出静态成员所属的类。但如果静态成员是const整数类型或者枚举型，则可以在类声明中初始化</p>
+<h3 id="实现only静态分配和only动态分配"><a href="#实现only静态分配和only动态分配" class="headerlink" title="实现only静态分配和only动态分配"></a>实现only静态分配和only动态分配</h3><p>1）前者是把<strong>new,delete运算符重载</strong>为<strong>private属性</strong>，而后者是把<strong>构造、析构函数</strong>设为<strong>protected属性</strong>，再用子类动态创建<br>2）创建类对象的两种方式：<br>1.<strong>静态创建</strong>：静态创建一个类对象，就是<strong>编译器</strong>为对象<strong>在栈空间上</strong>分配内存<br>2.<strong>动态创建</strong>：动态创建类对象，就是用<strong>new运算符</strong>在<strong>堆空间</strong>上分配内存。这个过程分两步，<strong>第一步调用operator new()函数</strong>，在堆中搜索一块内存并分配；<strong>第二步调用构造函数创建对象</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ClassName *p = <span class="keyword">new</span> ClassName();</span><br></pre></td></tr></table></figure>
+<p>3）只有使用new运算符，对象才会被建立在堆上，因此只要限制new运算符就可以实现类对象只能建立在栈上，可以将new运算符设为私有。</p>
+<h3 id="构造函数、析构函数的作用，怎样实现"><a href="#构造函数、析构函数的作用，怎样实现" class="headerlink" title="构造函数、析构函数的作用，怎样实现"></a>构造函数、析构函数的作用，怎样实现</h3><p>1）<strong>构造函数</strong>起<strong>初始化值的作用</strong>，但实例化对象时，可以通过实例传递参数从主函数到其他函数里面；规则只要一实例化对象，编译器将自动调用构造函数<br>2）<strong>析构函数</strong>作用与构造函数相反，在定义对象的代码块执行完毕后调用。用于撤销对象，释放分配给对象的内存空间。<br><strong>特点</strong>：<strong>析构函数与构造函数同名，但该函数前面加~。 析构函数没有参数，也没有返回值，而且不能重载，在一个类中只能有一个析构函数</strong>。每一个类必须有一个析构函数，用户可以自定义析构函数，也可以是编译器自动生成默认的析构函数。一般析构函数定义为类的<strong>公有成员</strong>。<br>3）<strong>构造函数中使用new来分配内存时，必须在相应的析构函数中使用delete来释放内存。如果使用new[]（包括中括号）来分配内存, 则应使用delete[]（包括中括号）来释放内存</strong><br>这是因为不使用new的话，对象是创建在栈空间上的，执行完毕后栈自动释放已分配的内存；而new是在堆空间分配的内存，删除对象可以释放对象本身所占的内存，但不能自动释放属于对象成员的指针指向的内存，因此在析构函数中使用delete语句可确保对象过期时，由构造函数使用new分配的内存被释放</p>
+<h3 id="类什么时候析构"><a href="#类什么时候析构" class="headerlink" title="类什么时候析构"></a>类什么时候析构</h3><p>1）如果对象是动态变量，当执行完<strong>定义该对象的程序块</strong>时，调用析构函数<br>2）如果对象是静态变量（外部、静态、静态外部或来自名称空间），则当<strong>程序结束</strong>时调用对象的析构函数<br>3）对象是new创建的，仅当<strong>显式的调用delete删除对象</strong>时，析构函数才会被调用<br>4）delete指向对象的指针时，或者delete指向对象的基类指针，析构函数是虚函数<br>5）对象是另一个对象的成员，析构后者，前者的析构函数也会被调用</p>
+<h3 id="浅复制（浅拷贝）和深复制（深拷贝）"><a href="#浅复制（浅拷贝）和深复制（深拷贝）" class="headerlink" title="浅复制（浅拷贝）和深复制（深拷贝）"></a>浅复制（浅拷贝）和深复制（深拷贝）</h3><p><img src="https://pics7.baidu.com/feed/902397dda144ad343c29a99b186e29f130ad856d.jpeg?token=cc3fbf1a58349da440fe97c5a59acc91&s=EDA03C7255627F1B4A6598C20000E0B3" alt="浅复制与深复制"></p>
+<p>1) <strong>浅复制</strong>——只是拷贝了基本类型的数据，而引用类型数据，复制后也是会发生引用，我们把这种拷贝叫做“（浅复制）浅拷贝”，换句话说，浅复制仅仅是指向被复制的内存地址，如果原地址中对象被改变了，那么浅复制出来的对象也会相应改变。<br><strong>深复制</strong>——在计算机中开辟了一块新的内存地址用于存放复制的对象。<br>2) <img src="/images/%E6%B5%85%E5%A4%8D%E5%88%B6.png" alt="浅复制"><br>   <img src="/images/%E6%B7%B1%E5%A4%8D%E5%88%B6.png" alt="深复制"></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://sideolobes.github.io/2020/03/16/C++(%E5%87%BD%E6%95%B0)/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -490,7 +571,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-count">5</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
