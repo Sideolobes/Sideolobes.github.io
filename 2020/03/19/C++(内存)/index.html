@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"sideolobes.github.io","root":"/","scheme":"Pisces","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="(内存):*c++的内存分配，详细说一下栈、堆、静态存储区？1、栈区(stack)：由编译器自动分配释放，存放函数的参数值，局部变量的值等,其操作方式类似于数据结构中的栈2、堆区(heap)：一般由程序员分配释放，若程序员不释放，程序结束时可能由OS（操作系统）回收;注意它与数据结构中的堆是两回事，分配方式倒是类似于链表3、全局区(静态区)(static):全局变量和静态变量的存储是放在一块的，初">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++(内存)">
+<meta property="og:url" content="https://sideolobes.github.io/2020/03/19/C++(%E5%86%85%E5%AD%98)/index.html">
+<meta property="og:site_name" content="Blog">
+<meta property="og:description" content="(内存):*c++的内存分配，详细说一下栈、堆、静态存储区？1、栈区(stack)：由编译器自动分配释放，存放函数的参数值，局部变量的值等,其操作方式类似于数据结构中的栈2、堆区(heap)：一般由程序员分配释放，若程序员不释放，程序结束时可能由OS（操作系统）回收;注意它与数据结构中的堆是两回事，分配方式倒是类似于链表3、全局区(静态区)(static):全局变量和静态变量的存储是放在一块的，初">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-03-19T00:37:44.974Z">
+<meta property="article:modified_time" content="2020-03-20T01:34:57.170Z">
+<meta property="article:author" content="Sideolobes">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://sideolobes.github.io/2020/03/19/C++(%E5%86%85%E5%AD%98)/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>C++(内存) | Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://sideolobes.github.io/2020/03/19/C++(%E5%86%85%E5%AD%98)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Sideolobes">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          C++(内存)
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-03-19 08:37:44" itemprop="dateCreated datePublished" datetime="2020-03-19T08:37:44+08:00">2020-03-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-03-20 09:34:57" itemprop="dateModified" datetime="2020-03-20T09:34:57+08:00">2020-03-20</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="内存"><a href="#内存" class="headerlink" title="(内存):*"></a>(内存):*</h2><h3 id="c-的内存分配，详细说一下栈、堆、静态存储区？"><a href="#c-的内存分配，详细说一下栈、堆、静态存储区？" class="headerlink" title="c++的内存分配，详细说一下栈、堆、静态存储区？"></a>c++的内存分配，详细说一下栈、堆、静态存储区？</h3><p>1、<strong>栈区(stack)</strong>：由编译器自动分配释放，存放函数的参数值，局部变量的值等,其操作方式类似于数据结构中的栈<br>2、<strong>堆区(heap)</strong>：一般由程序员分配释放，若程序员不释放，程序结束时可能由OS（操作系统）回收;注意它与数据结构中的堆是两回事，分配方式倒是类似于链表<br>3、<strong>全局区(静态区)(static)</strong>:全局变量和静态变量的存储是放在一块的，初始化的全局变量和静态变量在一块区域，未初始化的全局变量和未初始化的静态变量在相邻的另一块区域。程序结束后由系统释放<br>4、<strong>文字常量区</strong>:常量字符串就是放在这里的,程序结束后由系统释放<br>5、<strong>程序代码区</strong>:存放函数体的二进制代码 </p>
+<h3 id="堆与栈的区别？"><a href="#堆与栈的区别？" class="headerlink" title="堆与栈的区别？"></a>堆与栈的区别？</h3><p>1)    <strong>管理方式</strong>：对于<strong>栈来讲，是由编译器自动管理</strong>，无需我们手工控制；对于<strong>堆来说，释放工作由程序员控制</strong>，容易产生memory leak。<br>2)    <strong>空间大小</strong>：一般来讲在32位系统下，堆内存可以达到4G的空间，从这个角度来看<strong>堆内存几乎是没有什么限制的。但是对于栈来讲，一般都是有一定的空间大小的</strong><br>(例如，在VC6下面，默认的栈空间大小是1M（好像是，记不清楚了）。当然，我们可以修改： 打开工程，依次操作菜单如下：Project-&gt;Setting-&gt;Link，在Category 中选中Output，然后在Reserve中设定堆栈的最大值和commit。 注意：reserve最小值为4Byte；commit是保留在虚拟内存的页文件里面，它设置的较大会使栈开辟较大的值，可能增加内存的开销和启动时间)<br>3)    <strong>碎片问题</strong>：<strong>对于堆来讲，频繁的new/delete势必会造成内存空间的不连续，从而造成大量的碎片</strong>，使程序效率降低。<strong>对于栈来讲，则不会存在这个问题</strong>，因为栈是先进后出的队列，他们是如此的一一对应，以至于永远都不可能有一个内存块从栈中间弹出，在他弹出之前，在他上面的后进的栈内容已经被弹出<br>4)    <strong>生长方向</strong>：<strong>对于堆来讲，生长方向是向上的，也就是向着内存地址增加的方向；对于栈来讲，它的生长方向是向下的，是向着内存地址减小的方向增长</strong><br>5)    <strong>分配方式</strong>：<strong>堆都是动态分配的，没有静态分配的堆</strong>。<strong>栈有2种分配方式：静态分配和动态分配</strong>。静态分配是编译器完成的，比如局部变量的分配。动态分配由alloca函数进行分配，但是栈的动态分配和堆是不同的，它的动态分配是由编译器进行释放，无需我们手工实现。<br>6)    <strong>分配效率</strong>：<strong>栈是机器系统提供的数据结构，计算机会在底层对栈提供支持：分配专门的寄存器存放栈的地址，压栈出栈都有专门的指令执行，这就决定了栈的效率比较高</strong>。堆则是C/C++函数库提供的，它的机制是很复杂的，例如为了分配一块内存，库函数会按照一定的算法（具体的算法可以参考数据结构/操作系统）在堆内存中搜索可用的足够大小的空间，如果没有足够大小的空间（可能是由于内存碎片太多），就有可能调用系统功能去增加程序数据段的内存空间，这样就有机会分到足够大小的内存，然后进行返回。<strong>显然，堆的效率比栈要低得多</strong></p>
+<h3 id="野指针是什么？如何检测内存泄漏？"><a href="#野指针是什么？如何检测内存泄漏？" class="headerlink" title="野指针是什么？如何检测内存泄漏？"></a>野指针是什么？如何检测内存泄漏？</h3><p>1)    野指针：<strong>指向内存被释放的内存或者没有访问权限的内存的指针</strong><br>2)    “野指针”的成因主要有3种：<br>① <strong>指针变量没有被初始化</strong>:<strong>任何指针变量刚被创建时不会自动成为NULL指针，它的缺省值是随机的</strong>，它会乱指一气。所以，指针变量在创建的同时应当被初始化，要么将指针设置为NULL，要么让它指向合法的内存。例如</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span> *p = <span class="literal">NULL</span>;</span><br><span class="line"><span class="keyword">char</span> *str = <span class="keyword">new</span> <span class="keyword">char</span>(<span class="number">100</span>);</span><br></pre></td></tr></table></figure>
+<p>②<strong>指针p被free或者delete之后，没有置为NULL</strong><br>③    <strong>指针操作超越了变量的作用范围</strong>：不要返回指向栈内存的指针或引用，因为栈内存在函数结束时会被释放。<br>3. 如何避免野指针：<br>1)<strong>对指针进行初始化</strong><br>①将指针初始化为NULL</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span> *   p  = <span class="literal">NULL</span>;</span><br></pre></td></tr></table></figure>
+<p>②用malloc分配内存</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span> * p = (<span class="keyword">char</span> * )<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="keyword">char</span>));</span><br></pre></td></tr></table></figure>
+<p>③用已有合法的可访问的内存地址对指针初始化</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span> num[ <span class="number">30</span>] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line"><span class="keyword">char</span> *p = num;</span><br></pre></td></tr></table></figure>
+<p>2)<strong>指针用完后释放内存，将指针赋NULL</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">delete</span>(p);</span><br><span class="line">p = <span class="literal">NULL</span>;</span><br></pre></td></tr></table></figure>
+<h3 id="悬空指针和野指针有什么区别？"><a href="#悬空指针和野指针有什么区别？" class="headerlink" title="悬空指针和野指针有什么区别？"></a>悬空指针和野指针有什么区别？</h3><p>1)    野指针：野指针指，<strong>访问一个已删除或访问受限的内存区域的指针</strong>，野指针不能判断是否为NULL来避免。指针没有初始化，释放后没有置空，越界<br>2)    悬空指针：<strong>一个指针的指向对象已被删除</strong>，那么就成了悬空指针。野指针是那些未初始化的指针。</p>
+<h3 id="内存泄漏"><a href="#内存泄漏" class="headerlink" title="内存泄漏"></a>内存泄漏</h3><p>1) 内存泄漏是指由于疏忽或错误造成了程序未能释放掉不再使用的内存的情况。<strong>内存泄漏并非指内存在物理上消失，而是应用程序分配某段内存后，由于设计错误，失去了对该段内存的控制</strong><br>2) 后果：只发生一次小的内存泄漏可能不被注意，但泄漏大量内存的程序将会出现各种征兆：性能下降到内存逐渐用完，导致另一个程序失败</p>
+<h3 id="如何排除内存泄漏"><a href="#如何排除内存泄漏" class="headerlink" title="如何排除内存泄漏"></a>如何排除内存泄漏</h3><p>使用工具软件BoundsChecker，BoundsChecker是一个运行时错误检测工具，它主要定位程序运行时期发生的各种错误；<br>调试运行DEBUG版程序，运用以下技术：CRT(C run-time libraries)、运行时函数调用堆栈、内存泄漏时提示的内存分配序号(集成开发环境OUTPUT窗口)，综合分析内存泄漏的原因，排除内存泄漏。</p>
+<h3 id="内存泄漏解决方法"><a href="#内存泄漏解决方法" class="headerlink" title="内存泄漏解决方法"></a>内存泄漏解决方法</h3><p>智能指针</p>
+<h3 id="检查、定位内存泄漏"><a href="#检查、定位内存泄漏" class="headerlink" title="检查、定位内存泄漏"></a>检查、定位内存泄漏</h3><p>1) 检查方法<br><strong>在main函数最后面一行，加上一句_CrtDumpMemoryLeaks()</strong>。调试程序，自然关闭程序让其退出，查看输出：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//输出这样的格式</span></span><br><span class="line">&#123;<span class="number">453</span>&#125;normal block at <span class="number">0x02432CA8</span>,<span class="number">868</span> bytes <span class="keyword">long</span></span><br><span class="line"><span class="comment">//被&#123;&#125;包围的453就是我们需要的内存泄漏定位值</span></span><br><span class="line"><span class="comment">//868 bytes long就是说这个地方有868比特内存没有释放</span></span><br></pre></td></tr></table></figure>
+<p>2) 定位代码位置<br><strong>在main函数第一行加上_CrtSetBreakAlloc(453)</strong>;意思就是在申请453这块内存的位置中断。然后调试程序，程序中断了，查看调用堆栈。加上头文件</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;crtdbg.h&gt;</span></span></span><br></pre></td></tr></table></figure>
+<h3 id="new和malloc的区别？"><a href="#new和malloc的区别？" class="headerlink" title="new和malloc的区别？"></a>new和malloc的区别？</h3><p>1、    new/delete是C++关键字，需要编译器支持。malloc/free是库函数，需要头文件支持；<br>2、    使用new操作符申请内存分配时<strong>无须指定内存块的大小</strong>，编译器会根据类型信息自行计算。而malloc则需要<strong>显式地指出所需内存的尺寸</strong>。<br>3、    new操作符内存分配成功时，<strong>返回的是对象类型的指针，类型严格与对象匹配，无须进行类型转换</strong>，故new是符合类型安全性的操作符。而<strong>malloc内存分配成功则是返回void* ，需要通过强制类型转换将void*指针转换成我们需要的类型</strong>。<br>4、    new<strong>内存分配失败</strong>时，会抛出bac_alloc异常。malloc分配内存失败时返回NULL。<br>5、    new会先调用operator new函数，申请足够的内存（通常底层使用malloc实现）。然后调用类型的构造函数，初始化成员变量，最后返回自定义类型指针。delete先调用析构函数，然后调用operator delete函数释放内存（通常底层使用free实现）。<strong>malloc/free是库函数，只能动态的申请和释放内存，无法强制要求其做自定义类型对象构造和析构工作</strong>。</p>
+<h3 id="delete-p-与delete-p，allocator"><a href="#delete-p-与delete-p，allocator" class="headerlink" title="delete p;与delete[]p，allocator"></a>delete p;与delete[]p，allocator</h3><p>1、    动态数组管理new一个数组时，[]中必须是一个整数，但是不一定是常量整数，普通数组必须是一个常量整数；<br>2、    new动态数组返回的并不是数组类型，而是一个元素类型的指针；<br>3、    delete[]时，数组中的元素按逆序的顺序进行销毁；<br>4、    new在内存分配上面有一些局限性，<strong>new的机制是将内存分配和对象构造组合在一起，同样的，delete也是将对象析构和内存释放组合在一起的。allocator将这两部分分开进行，allocator申请一部分内存，不进行初始化对象，只有当需要的时候才进行初始化操作</strong>。</p>
+<h3 id="new和delete的实现原理，-delete是如何知道释放内存的大小的额？"><a href="#new和delete的实现原理，-delete是如何知道释放内存的大小的额？" class="headerlink" title="new和delete的实现原理， delete是如何知道释放内存的大小的额？"></a>new和delete的实现原理， delete是如何知道释放内存的大小的额？</h3><p>1、    new简单类型直接调用operator new分配内存；而对于复杂结构，先调用operator new分配内存，然后在分配的内存上调用构造函数；对于简单类型，new[]计算好大小后调用<strong>operator new</strong>；对于复杂数据结构，<strong>new[]先调用operator new[] 分配内存，然后在p的前四个字节写入数组大小n，然后调用n次构造函数，针对复杂类型，new[]会额外存储数组大小</strong><br>①    new表达式调用一个名为operator  new(operator new[])函数，分配一块足够大的、原始的、未命名的内存空间；<br>②    编译器运行相应的构造函数以构造这些对象，并为其传入初始值；<br>③    对象被分配了空间并构造完成，返回一个指向该对象的指针。<br>2、    <strong>delete简单数据类型默认只是调用free函数；复杂数据类型先调用析构函数再调用operator delete</strong>；针对简单类型，delete和delete[] 等同。假设指针p指向new[] 分配的内存。因为要4字节存储数组大小，实际分配的内存地址为[p-4]，系统记录的也是这个地址。<strong>delete[]实际释放的就是p-4指向的内存。而delete会直接释放p指向的内存，这个内存根本没有被系统记录，所以会崩溃</strong>。<br>3、    需要在new[]一个对象数组时，需要保存数组的维度，<strong>C++的做法是在分配数组空间时多分配了4个字节的大小，专门保存数组的大小</strong>，在delete [] 时就可以取出这个保存的数，就知道了需要调用析构函数多少次了。</p>
+<h3 id="malloc申请的存储空间能用delete释放吗"><a href="#malloc申请的存储空间能用delete释放吗" class="headerlink" title="malloc申请的存储空间能用delete释放吗"></a>malloc申请的存储空间能用delete释放吗</h3><p><strong>不能</strong>，<strong>malloc /free主要为了兼容C，new和delete 完全可以取代malloc /free的。malloc /free的操作对象都是必须明确大小的。而且不能用在动态类上</strong>。new 和delete会自动进行类型检查和大小，malloc/free不能执行构造函数与析构函数，所以动态对象它是不行的。当然从理论上说使用malloc申请的内存是可以通过delete释放的。不过一般不这样写的。而且也不能保证每个C++的运行时都能正常。</p>
+<h3 id="malloc与free的实现原理？"><a href="#malloc与free的实现原理？" class="headerlink" title="malloc与free的实现原理？"></a>malloc与free的实现原理？</h3><ol>
+<li>在标准C库中，提供了malloc/free函数分配释放内存，这两个函数底层是由brk、mmap、munmap这些系统调用实现的;</li>
+<li><strong>brk是将数据段(.data)的最高地址指针_edata往高地址推</strong>,<strong>mmap是在进程的虚拟地址空间中（堆和栈中间，称为文件映射区域的地方）找一块空闲的虚拟内存</strong>。这两种方式分配的<strong>都是虚拟内存，没有分配物理内存</strong>。在第一次访问已分配的虚拟地址空间的时候，发生缺页中断，操作系统负责分配物理内存，然后建立虚拟内存和物理内存之间的映射关系；</li>
+<li>malloc小于128k的内存，使用brk分配内存，将_edata往高地址推；malloc大于128k的内存，使用mmap分配内存，在堆和栈之间找一块空闲内存分配；<strong>brk分配的内存需要等到高地址内存释放以后才能释放，而mmap分配的内存可以单独释放。当最高地址空间的空闲内存超过128K（可由M_TRIM_THRESHOLD选项调节）时，执行内存紧缩操作（trim）。在上一个步骤free的时候，发现最高地址空闲内存超过128K，于是内存紧缩</strong>。</li>
+<li>malloc是从堆里面申请内存，也就是说函数返回的指针是指向堆里面的一块内存。<strong>操作系统中有一个记录空闲内存地址的链表。当操作系统收到程序的申请时，就会遍历该链表，然后就寻找第一个空间大于所申请空间的堆结点，然后就将该结点从空闲结点链表中删除，并将该结点的空间分配给程序</strong>。<h3 id="malloc、realloc、calloc的区别"><a href="#malloc、realloc、calloc的区别" class="headerlink" title="malloc、realloc、calloc的区别"></a>malloc、realloc、calloc的区别</h3>1)    malloc函数<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span>* <span class="title">malloc</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">int</span> num_size)</span></span>;</span><br><span class="line"><span class="keyword">int</span> *p = <span class="built_in">malloc</span>(<span class="number">20</span>*<span class="keyword">sizeof</span>(<span class="keyword">int</span>));<span class="comment">//申请20个int类型的空间；</span></span><br></pre></td></tr></table></figure>
+2)    calloc函数<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span>* <span class="title">calloc</span><span class="params">(<span class="keyword">size_t</span> n,<span class="keyword">size_t</span> <span class="built_in">size</span>)</span></span>;</span><br><span class="line"><span class="keyword">int</span> *p = <span class="built_in">calloc</span>(<span class="number">20</span>, <span class="keyword">sizeof</span>(<span class="keyword">int</span>));</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p><strong>省去了人为空间计算；malloc申请的空间的值是随机初始化的，calloc申请的空间的值是初始化为0的</strong><br>3)    realloc函数</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">realloc</span><span class="params">(<span class="keyword">void</span> *p, <span class="keyword">size_t</span> new_size)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>给<strong>动态分配的空间分配额外的空间，用于扩充容量</strong></p>
+<h3 id="stdcall和cdecl的区别？"><a href="#stdcall和cdecl的区别？" class="headerlink" title="stdcall和cdecl的区别？"></a><strong>stdcall和</strong>cdecl的区别？</h3><p>1)    <strong>stdcall<br>__stdcall是<strong>函数恢复堆栈</strong>，只有在函数代码的结尾出现一次恢复堆栈的代码；在编译时就规定了参数个数，无法实现不定个数的参数调用；<br>2)    __cdecl<br>__cdecl是<strong>调用者恢复堆栈</strong>，假设有100个函数调用函数a，那么内存中就有100端恢复堆栈的代码；可以不定参数个数；每一个调用它的函数都包含清空堆栈的代码，所以产生的可执行文件大小会比调用</strong>stacall函数大</p>
+<h3 id="内存对齐？位域？"><a href="#内存对齐？位域？" class="headerlink" title="内存对齐？位域？"></a>内存对齐？位域？</h3><ol>
+<li>分配内存的顺序是<strong>按照声明的顺序</strong></li>
+<li>每个变量<strong>相对于起始位置的偏移量必须是该变量类型大小的整数倍</strong>，不是整数倍空出内存，直到偏移量是整数倍为止</li>
+<li>最后<strong>整个结构体的大小必须是里面变量类型最大值的整数倍</strong></li>
+</ol>
+<p>添加了#pragma pack(n)后规则就变成了下面这样：<br>1、 偏移量要是n和当前变量大小中较小值的整数倍<br>2、 整体大小要是n和最大变量大小中较小值的整数倍<br>3、 n值必须为1,2,4,8…，为其他值时就按照默认的分配规则</p>
+<h3 id="内存对齐的原因"><a href="#内存对齐的原因" class="headerlink" title="内存对齐的原因"></a>内存对齐的原因</h3><ol>
+<li>平台原因(移植原因)<br>1)不是所有的硬件平台都能访问任意地址上的任意数据的；<br>2)某些硬件平台只能在某些地址处取某些特定类型的数据，否则抛出硬件异常</li>
+<li>性能原因：<br>1)数据结构(尤其是栈)应该尽可能地在自然边界上对齐。<br>2)原因在于，为了访问未对齐的内存，处理器需要作两次内存访问；而对齐的内存访问仅需要一次访问<h3 id="在成员函数中调用delete-this会出现什么问题？对象还可以使用吗？"><a href="#在成员函数中调用delete-this会出现什么问题？对象还可以使用吗？" class="headerlink" title="在成员函数中调用delete this会出现什么问题？对象还可以使用吗？"></a>在成员函数中调用delete this会出现什么问题？对象还可以使用吗？</h3></li>
+<li>在类对象的内存空间中，只有数据成员和虚函数表指针，并不包含代码内容，类的成员函数单独放在代码段中。在调用成员函数时，隐含传递一个this指针，让成员函数知道当前是哪个对象在调用它。当调用delete this时，类对象的内存空间被释放。<strong>在delete this之后进行的其他任何函数调用，只要不涉及到this指针的内容，都能够正常运行。一旦涉及到this指针，如操作数据成员，调用虚函数等，就会出现不可预期的问题</strong></li>
+<li>为什么是不可预期的问题？<br>delete this之后不是释放了类对象的内存空间了么，那么这段内存应该已经还给系统，不再属于这个进程。照这个逻辑来看，应该发生指针错误，无访问权限之类的令系统崩溃的问题才对，这个问题牵涉到操作系统的内存管理策略。delete this<strong>释放了类对象的内存空间，但是内存空间却并不是马上被回收到系统中，可能是缓冲或者其他什么原因，导致这段内存空间暂时并没有被系统收回</strong>。此时这段内存是可以访问的，你可以加上100，加上200，但是其中的值却是不确定的。当你获取数据成员，可能得到的是一串很长的未初始化的随机数；访问虚函数表，<strong>指针无效的可能性非常高，造成系统崩溃</strong></li>
+<li>如果在类的析构函数中调用delete this，会发生什么？</li>
+</ol>
+<p><strong>会导致堆栈溢出</strong>。原因很简单，delete的本质是“为将被释放的内存调用一个或多个析构函数，然后，释放内存”。显然，<strong>delete this会去调用本对象的析构函数，而析构函数中又调用delete this，形成无限递归，造成堆栈溢出，系统崩溃</strong>。</p>
+<h3 id="查看内存的方法"><a href="#查看内存的方法" class="headerlink" title="查看内存的方法"></a>查看内存的方法</h3><ol>
+<li>首先打开vs编译器，创建好项目，并且将代码写进去，这里就不贴代码了，你可以随便的写个做个测试;</li>
+<li>调试的时候<strong>做好相应的断点，然后点击开始调试</strong>;</li>
+<li>程序调试之后会在你设置断点的地方暂停，然后选择<strong>调试-&gt;窗口-&gt;内存</strong>，就打开了内存数据查看的窗口了。<h3 id="new、delete、operator-new、operator-delete、placement-new、placement-delete"><a href="#new、delete、operator-new、operator-delete、placement-new、placement-delete" class="headerlink" title="new、delete、operator new、operator delete、placement new、placement delete"></a>new、delete、operator new、operator delete、placement new、placement delete</h3>1)    new operator<br>new operator 完成了两件事情：<strong>用于申请内存和初始化对象</strong>，例如：<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">string</span>* ps = <span class="keyword">new</span> <span class="built_in">string</span>(<span class="string">"abc"</span>);</span><br></pre></td></tr></table></figure>
+2)    operator new<br>operator new 类似于C语言中的malloc，<strong>只是负责申请内存</strong>,例如：<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span>* <span class="built_in">buffer</span> = <span class="keyword">operator</span> <span class="keyword">new</span>(<span class="keyword">sizeof</span>(<span class="built_in">string</span>));<span class="comment">// 注意这里new前要有个operator</span></span><br></pre></td></tr></table></figure>
+3)    placement new</li>
+</ol>
+<p><strong>用于在给定的内存中初始化对象</strong>，例如：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span>* <span class="built_in">buffer</span> = <span class="keyword">operator</span> <span class="keyword">new</span>(<span class="keyword">sizeof</span>(<span class="built_in">string</span>));</span><br><span class="line"><span class="built_in">buffer</span> = <span class="keyword">new</span>(<span class="built_in">buffer</span>) <span class="built_in">string</span>(<span class="string">"abc"</span>);</span><br></pre></td></tr></table></figure>
+<p>调用了placement new，在buffer所指向的内存中创建了一个string类型的对象并且初始值为“abc”<br>4)    因此可以看出：<strong>new operator 可以分解operator new 和 placement new两个动作</strong>，是 operator new 和 placement new 的结合。<br>与new对应的<strong>delete没有 placement delete 语法</strong>，它只有两种，分别是delete operator 和 operator delete。<br>delete operator 和 new operator 对应，完成析构对象和释放内存的操作。而 operator delete 只是用于内存的释放，与C语言中的free相似。</p>
+<h3 id="大内存申请时候选用哪种？C-变量存在哪？变量的大小存在哪？符号表存在哪？"><a href="#大内存申请时候选用哪种？C-变量存在哪？变量的大小存在哪？符号表存在哪？" class="headerlink" title="大内存申请时候选用哪种？C++变量存在哪？变量的大小存在哪？符号表存在哪？"></a>大内存申请时候选用哪种？C++变量存在哪？变量的大小存在哪？符号表存在哪？</h3><ol>
+<li>大内存申请时，采用堆申请空间，用new申请；</li>
+<li>不同的变量存储在不同的地方，局部变量、全局变量、静态变量；</li>
+<li>C++对变量名不作存储，在汇编以后不会出现变量名，变量名作用只是用于方便编译成汇编代码，是给编译器看的，是方便人阅读的</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/18/C++(%E7%B1%BB%E7%BB%A7%E6%89%BF%EF%BC%89/" rel="prev" title="C++(类继承）">
+      <i class="fa fa-chevron-left"></i> C++(类继承）
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/03/19/C++(STL%E6%A0%87%E5%87%86%E5%BA%93)/" rel="next" title="C++(STL标准库)">
+      C++(STL标准库) <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#内存"><span class="nav-number">1.</span> <span class="nav-text">(内存):*</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#c-的内存分配，详细说一下栈、堆、静态存储区？"><span class="nav-number">1.1.</span> <span class="nav-text">c++的内存分配，详细说一下栈、堆、静态存储区？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#堆与栈的区别？"><span class="nav-number">1.2.</span> <span class="nav-text">堆与栈的区别？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#野指针是什么？如何检测内存泄漏？"><span class="nav-number">1.3.</span> <span class="nav-text">野指针是什么？如何检测内存泄漏？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#悬空指针和野指针有什么区别？"><span class="nav-number">1.4.</span> <span class="nav-text">悬空指针和野指针有什么区别？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#内存泄漏"><span class="nav-number">1.5.</span> <span class="nav-text">内存泄漏</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如何排除内存泄漏"><span class="nav-number">1.6.</span> <span class="nav-text">如何排除内存泄漏</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#内存泄漏解决方法"><span class="nav-number">1.7.</span> <span class="nav-text">内存泄漏解决方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#检查、定位内存泄漏"><span class="nav-number">1.8.</span> <span class="nav-text">检查、定位内存泄漏</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#new和malloc的区别？"><span class="nav-number">1.9.</span> <span class="nav-text">new和malloc的区别？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#delete-p-与delete-p，allocator"><span class="nav-number">1.10.</span> <span class="nav-text">delete p;与delete[]p，allocator</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#new和delete的实现原理，-delete是如何知道释放内存的大小的额？"><span class="nav-number">1.11.</span> <span class="nav-text">new和delete的实现原理， delete是如何知道释放内存的大小的额？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#malloc申请的存储空间能用delete释放吗"><span class="nav-number">1.12.</span> <span class="nav-text">malloc申请的存储空间能用delete释放吗</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#malloc与free的实现原理？"><span class="nav-number">1.13.</span> <span class="nav-text">malloc与free的实现原理？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#malloc、realloc、calloc的区别"><span class="nav-number">1.14.</span> <span class="nav-text">malloc、realloc、calloc的区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#stdcall和cdecl的区别？"><span class="nav-number">1.15.</span> <span class="nav-text">stdcall和cdecl的区别？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#内存对齐？位域？"><span class="nav-number">1.16.</span> <span class="nav-text">内存对齐？位域？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#内存对齐的原因"><span class="nav-number">1.17.</span> <span class="nav-text">内存对齐的原因</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#在成员函数中调用delete-this会出现什么问题？对象还可以使用吗？"><span class="nav-number">1.18.</span> <span class="nav-text">在成员函数中调用delete this会出现什么问题？对象还可以使用吗？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查看内存的方法"><span class="nav-number">1.19.</span> <span class="nav-text">查看内存的方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#new、delete、operator-new、operator-delete、placement-new、placement-delete"><span class="nav-number">1.20.</span> <span class="nav-text">new、delete、operator new、operator delete、placement new、placement delete</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#大内存申请时候选用哪种？C-变量存在哪？变量的大小存在哪？符号表存在哪？"><span class="nav-number">1.21.</span> <span class="nav-text">大内存申请时候选用哪种？C++变量存在哪？变量的大小存在哪？符号表存在哪？</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Sideolobes</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Sideolobes</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

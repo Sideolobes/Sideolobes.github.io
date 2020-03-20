@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"sideolobes.github.io","root":"/","scheme":"Pisces","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="容器容器内部删除一个元素1)    顺序容器:顺序容器有以下三种：可变长动态数组 vector、双端队列 deque、双向链表 list。erase迭代器不仅使所指向被删除的迭代器失效，而且使被删元素之后的所有迭代器失效(list除外)，所以不能使用erase(it++)的方式，但是erase的返回值是下一个有效迭代器； 1It &#x3D; c.erase(it); 2)    关联容器:关联容器有以下四">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++(STL标准库)">
+<meta property="og:url" content="https://sideolobes.github.io/2020/03/19/C++(STL%E6%A0%87%E5%87%86%E5%BA%93)/index.html">
+<meta property="og:site_name" content="Blog">
+<meta property="og:description" content="容器容器内部删除一个元素1)    顺序容器:顺序容器有以下三种：可变长动态数组 vector、双端队列 deque、双向链表 list。erase迭代器不仅使所指向被删除的迭代器失效，而且使被删元素之后的所有迭代器失效(list除外)，所以不能使用erase(it++)的方式，但是erase的返回值是下一个有效迭代器； 1It &#x3D; c.erase(it); 2)    关联容器:关联容器有以下四">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://sideolobes.github.io/images/vector%E5%86%85%E5%AD%98%E6%89%A9%E5%AE%B9.png">
+<meta property="article:published_time" content="2020-03-19T00:39:59.369Z">
+<meta property="article:modified_time" content="2020-03-20T01:35:00.197Z">
+<meta property="article:author" content="Sideolobes">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://sideolobes.github.io/images/vector%E5%86%85%E5%AD%98%E6%89%A9%E5%AE%B9.png">
+
+<link rel="canonical" href="https://sideolobes.github.io/2020/03/19/C++(STL%E6%A0%87%E5%87%86%E5%BA%93)/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>C++(STL标准库) | Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://sideolobes.github.io/2020/03/19/C++(STL%E6%A0%87%E5%87%86%E5%BA%93)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Sideolobes">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          C++(STL标准库)
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-03-19 08:39:59" itemprop="dateCreated datePublished" datetime="2020-03-19T08:39:59+08:00">2020-03-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-03-20 09:35:00" itemprop="dateModified" datetime="2020-03-20T09:35:00+08:00">2020-03-20</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="容器"><a href="#容器" class="headerlink" title="容器"></a>容器</h2><h3 id="容器内部删除一个元素"><a href="#容器内部删除一个元素" class="headerlink" title="容器内部删除一个元素"></a>容器内部删除一个元素</h3><p>1)    <strong>顺序容器</strong>:顺序容器有以下三种：可变长动态数组 vector、双端队列 deque、双向链表 list。<br>erase迭代器<strong>不仅使所指向被删除的迭代器失效，而且使被删元素之后的所有迭代器失效(list除外)</strong>，所以不能使用erase(it++)的方式，但是erase的返回值是下一个有效迭代器；</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">It = c.erase(it);</span><br></pre></td></tr></table></figure>
+<p>2)    <strong>关联容器</strong>:关联容器有以下四种：set、multiset、map、multimap。<br>erase迭代器<strong>只是被删除元素的迭代器失效，但是返回值是void，所以要采用erase(it++)的方式删除迭代器</strong>；</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">c.erase(it++)</span><br></pre></td></tr></table></figure>
+<h3 id="标准库是什么？"><a href="#标准库是什么？" class="headerlink" title="标准库是什么？"></a>标准库是什么？</h3><p>C++ 标准库可以分为两部分：</p>
+<p>1) <strong>标准函数库</strong>:这个库是由通用的、独立的、不属于任何类的函数组成的。函数库继承自 C 语言。<br>输入/输出 I/O、字符串和字符处理、数学、时间、日期和本地化、动态分配、其他、宽字符函数<br>2) <strong>面向对象类库</strong>:这个库是类及其相关函数的集合<br>标准的 C++ I/O 类、String 类、数值类、STL 容器类、STL 算法、STL 函数对象、STL 迭代器、STL 分配器、本地化库、异常处理类、杂项支持库</p>
+<h3 id="如何在共享内存上使用stl标准库？"><a href="#如何在共享内存上使用stl标准库？" class="headerlink" title="如何在共享内存上使用stl标准库？"></a>如何在共享内存上使用stl标准库？</h3><p>1)    想像一下把STL容器，例如map, vector, list等等，放入共享内存中，IPC一旦有了这些强大的通用数据结构做辅助，无疑进程间通信的能力一下子强大了很多。我们没必要再为共享内存设计其他额外的数据结构，另外，STL的高度可扩展性将为IPC所驱使。STL容器被良好的封装，默认情况下有它们自己的内存管理方案。当一个元素被插入到一个STL列表(list)中时，列表容器自动为其分配内存，保存数据。考虑到要将STL容器放到共享内存中，而容器却自己在堆上分配内存。一个最笨拙的办法是在堆上构造STL容器，然后把容器复制到共享内存，并且确保所有容器的内部分配的内存指向共享内存中的相应区域，这基本是个不可能完成的任务。<br>2)    假设进程A在共享内存中放入了数个容器，进程B如何找到这些容器呢？一个方法就是进程A把容器放在共享内存中的确定地址上（fixed offsets），则进程B可以从该已知地址上获取容器。另外一个改进点的办法是，进程A先在共享内存某块确定地址上放置一个map容器，然后进程A再创建其他容器，然后给其取个名字和地址一并保存到这个map容器里。进程B知道如何获取该保存了地址映射的map容器，然后同样再根据名字取得其他容器的地址。</p>
+<h3 id="STL迭代器如何实现"><a href="#STL迭代器如何实现" class="headerlink" title="STL迭代器如何实现"></a>STL迭代器如何实现</h3><ol>
+<li>迭代器是一种抽象的设计理念，通过迭代器可以在不了解容器内部原理的情况下<strong>遍历容器</strong>，除此之外，STL中迭代器一个最重要的作用就是作为容器与STL算法的粘合剂。</li>
+<li>迭代器的作用就是<strong>提供一个遍历容器内部所有元素的接口</strong>，因此<strong>迭代器内部必须保存一个与容器相关联的指针，然后重载各种运算操作来遍历</strong>，其中最重要的是*运算符与-&gt;运算符，以及++、–等可能需要重载的运算符重载。这和C++中的智能指针很像，智能指针也是将一个指针封装，然后通过引用计数或是其他方法完成自动释放内存的功能。</li>
+<li>最常用的迭代器的相应型别有五种：value type、difference type、pointer、reference、iterator catagoly;<h3 id="各种容器的底层数据结构"><a href="#各种容器的底层数据结构" class="headerlink" title="各种容器的底层数据结构"></a>各种容器的底层数据结构</h3></li>
+<li><strong>vector</strong>      底层数据结构为<strong>数组</strong> ，支持快速随机访问</li>
+<li><strong>list</strong>        底层数据结构为<strong>双向链表</strong>，支持快速增删</li>
+<li><strong>deque</strong>       底层数据结构为<strong>一个中央控制器和多个缓冲区</strong>，详细见STL源码剖析P146，支持首尾（中间不能）快速增删，也支持随机访问;deque是一个双端队列，也是在堆中保存内容的.它的保存形式如下:[堆1]–&gt;[堆2]–&gt;[堆3]–&gt; …每个堆保存好几个元素,然后堆和堆之间有指针指向,看起来像是list和vector的结合品.</li>
+<li><strong>stack</strong>       底层一般用<strong>list或deque</strong>实现，封闭头部即可，不用vector的原因应该是容量大小有限制，扩容耗时</li>
+<li><strong>queue</strong>       底层一般用<strong>list或deque</strong>实现，封闭头部即可，不用vector的原因应该是容量大小有限制，扩容耗时（stack和queue其实是适配器,而不叫容器，因为是对容器的再封装）</li>
+<li><strong>priority_queue</strong>     的底层数据结构一般为<strong>vector为底层容器，堆heap为处理规则来管理底层容器实现</strong></li>
+<li><strong>set</strong>            底层数据结构为<strong>红黑树，有序，不重复</strong></li>
+<li><strong>multiset</strong>       底层数据结构为<strong>红黑树，有序，可重复</strong></li>
+<li><strong>map</strong>            底层数据结构为<strong>红黑树，有序，不重复</strong></li>
+<li><strong>multimap</strong>      底层数据结构为<strong>红黑树，有序，可重复</strong></li>
+<li><strong>hash_set</strong>      底层数据结构为<strong>hash表，无序，不重复</strong></li>
+<li><strong>hash_multiset</strong> 底层数据结构为<strong>hash表，无序，可重复</strong></li>
+<li><strong>hash_map</strong>      底层数据结构为<strong>hash表，无序，不重复</strong></li>
+<li><strong>hash_multimap</strong> 底层数据结构为<strong>hash表，无序，可重复</strong><h3 id="STL中的allocator-deallocator"><a href="#STL中的allocator-deallocator" class="headerlink" title="STL中的allocator,deallocator"></a>STL中的allocator,deallocator</h3>1) <strong>第一级配置器直接使用malloc()、free()和relloc()，第二级配置器视情况采用不同的策略</strong>：当配置区块超过128bytes时，视之为足够大，便调用第一级配置器；当配置器区块小于128bytes时，为了降低额外负担，使用复杂的内存池整理方式，而不再用一级配置器<br>2) <strong>第二级配置器主动将任何小额区块的内存需求量上调至8的倍数，并维护16个free-list，各自管理大小为8~128bytes的小额区块</strong><br>3) 空间配置函数allocate()，<strong>首先判断区块大小，大于128就直接调用第一级配置器，小于128时就检查对应的free-list</strong>。如果<strong>free-list之内有可用区块，就直接拿来用，如果没有可用区块，就将区块大小调整至8的倍数，然后调用refill()，为free-list重新分配空间</strong><br>4) 空间释放函数deallocate()，<strong>该函数首先判断区块大小，大于128bytes时，直接调用一级配置器，小于128bytes就找到对应的free-list然后释放内存</strong></li>
+</ol>
+<h2 id="vector"><a href="#vector" class="headerlink" title="vector"></a>vector</h2><h3 id="vector与list的区别与应用？怎么找某vector或者list的倒数第二个元素"><a href="#vector与list的区别与应用？怎么找某vector或者list的倒数第二个元素" class="headerlink" title="vector与list的区别与应用？怎么找某vector或者list的倒数第二个元素"></a>vector与list的区别与应用？怎么找某vector或者list的倒数第二个元素</h3><p>1)    vector数据结构<br>vector和数组类似，拥有一段<strong>连续的内存空间</strong>，并且<strong>起始地址不变</strong>。因此能高效的进行随机存取，<strong>时间复杂度为o(1)</strong>;但因为内存空间是连续的，所以在进行<strong>插入和删除操作</strong>时，会造成内存块的拷贝，<strong>时间复杂度为o(n)</strong>。另外，当数组中内存空间不够时，会重新申请一块内存空间并进行内存拷贝。连续存储结构：<strong>vector是可以实现动态增长的对象数组，支持对数组高效率的访问和在数组尾端的删除和插入操作，在中间和头部删除和插入相对不易，需要挪动大量的数据</strong>。它与数组最大的区别就是vector不需程序员自己去考虑容量问题，库里面本身已经实现了容量的动态增长，而数组需要程序员手动写入扩容函数进形扩容。<br>2)    list数据结构<br>list是由<strong>双向链表</strong>实现的，因此<strong>内存空间是不连续的</strong>。只能通过指针访问数据，所以<strong>list的随机存取</strong>非常没有效率，<strong>时间复杂度为o(n)</strong>;但由于链表的特点，能高效地进行插入和删除。非连续存储结构：list是一个双链表结构，<strong>支持对链表的双向遍历</strong>。每个节点包括三个信息：元素本身，指向前一个元素的指针（prev）和指向下一个元素的指针（next）。因此list可以高效率的对数据元素任意位置进行访问和插入删除等操作。由于涉及对额外指针的维护，所以开销比较大。<br>3) 区别：<br>vector的随机访问效率高，但在插入和删除时（不包括尾部）需要挪动数据，不易操作。list的访问要遍历整个链表，它的随机访问效率低。但对数据的插入和删除操作等都比较方便，改变指针的指向即可。list是单向的，vector是双向的。vector中的迭代器在使用后就失效了，而list的迭代器在使用之后还可以继续使用。</p>
+<h3 id="STL-vector的实现？"><a href="#STL-vector的实现？" class="headerlink" title="STL vector的实现？"></a>STL vector的实现？</h3><p>size()函数返回的是<strong>已用空间大小</strong>，capacity()返回的是<strong>总空间大小</strong>，capacity()-size()则是<strong>剩余的可用空间大小</strong>。<strong>当size()和capacity()相等，说明vector目前的空间已被用完，如果再添加新元素，则会引起vector空间的动态增长</strong>。<br>由于动态增长会引起<strong>重新分配内存空间、拷贝原空间、释放原空间</strong>，这些过程会降低程序效率。因此，可以使用reserve(n)预先分配一块较大的指定大小的内存空间，<strong>这样当指定大小的内存空间未使用完时，是不会重新分配内存空间的</strong>，这样便提升了效率。<strong>只有当n&gt;capacity()时，调用reserve(n)才会改变vector容量</strong>。<br>resize()成员函数只改变元素的数目，不改变vector的容量。</p>
+<ol>
+<li>空的vector对象，size()和capacity()都为0</li>
+<li>当空间大小不足时，新分配的空间大小为原空间大小的2倍。</li>
+<li>使用reserve()预先分配一块内存后，在空间未满的情况下，不会引起重新分配，从而提升了效率。</li>
+<li>当reserve()分配的空间比原空间小时，是不会引起重新分配的。</li>
+<li><strong>resize()函数只改变容器的元素数目，未改变容器大小</strong>。</li>
+<li>用<strong>reserve(size_type)只是扩大capacity值，这些内存空间可能还是“野”的</strong>，如果此时使用“[ ]”来访问，则可能会越界。而<strong>resize(size_type new_size)会真正使容器具有new_size个对象</strong>。<h3 id="删除其中的元素，迭代器如何变化？"><a href="#删除其中的元素，迭代器如何变化？" class="headerlink" title="删除其中的元素，迭代器如何变化？"></a>删除其中的元素，迭代器如何变化？</h3>erase迭代器不仅使所指向被删除的迭代器失效，而且使被删元素之后的所有迭代器失效(list除外)，所以不能使用erase(it++)的方式，但是erase的返回值是下一个有效迭代器；<h3 id="为什么是两倍扩容？"><a href="#为什么是两倍扩容？" class="headerlink" title="为什么是两倍扩容？"></a>为什么是两倍扩容？</h3></li>
+<li>不同的编译器，vector有不同的扩容大小。在vs下是1.5倍，在GCC下是2倍；</li>
+<li>空间和时间的权衡。简单来说， 空间分配的多，平摊时间复杂度低，但浪费空间也多。</li>
+<li>使用k=2增长因子的问题在于，每次扩展的新尺寸必然刚好大于之前分配的总和，也就是说，之前分配的内存空间不可能被使用。这样对内存不友好。最好把增长因子设为(1,2)<br><img src="/images/vector%E5%86%85%E5%AD%98%E6%89%A9%E5%AE%B9.png" alt="vector内存扩容"></li>
+<li>对比可以发现<strong>采用成倍方式扩容，可以保证常数的时间复杂度</strong>，而增加指定大小的容量只能达到O(n)的时间复杂度，因此，使用成倍的方式扩容。<h3 id="vector释放空间"><a href="#vector释放空间" class="headerlink" title="vector释放空间"></a>vector释放空间</h3>由于vector的<strong>内存占用空间只增不减</strong>，比如你首先分配了10,000个字节，然后erase掉后面9,999个，留下一个有效元素，但是内存占用仍为10,000个。<strong>所有内存空间是在vector析构时候才能被系统回收</strong>。empty()用来检测容器是否为空的，clear()可以清空所有元素。但是<strong>即使clear()，vector所占用的内存空间依然如故，无法保证内存的回收</strong>。<br>如果<strong>需要空间动态缩小，可以考虑使用deque</strong>。如果vector，可以用swap()来帮助你释放内存。<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">vector</span>(Vec).swap(Vec);<span class="comment">//将Vec的内存空洞清除；</span></span><br><span class="line"><span class="built_in">vector</span>().swap(Vec);<span class="comment">//清空Vec的内存；</span></span><br></pre></td></tr></table></figure>
+<h3 id="为什么是1-5倍？"><a href="#为什么是1-5倍？" class="headerlink" title="为什么是1.5倍？"></a>为什么是1.5倍？</h3>对比可以采用成倍方式扩容，可以保证常数的时间复杂度，而增加指定大小的容量只能达到O(n)的时间复杂度，因此，使用成倍的方式扩容。<br>1)    考虑可能产生的堆空间浪费，成倍增长倍数不能太大，使用较为广泛的扩容方式有两种，以2二倍的方式扩容，或者以1.5倍的方式扩容。<br>2)    以2倍的方式扩容，<strong>导致下一次申请的内存必然大于之前分配内存的总和，导致之前分配的内存不能再被使用，所以最好倍增长因子设置为(1,2)之间</strong> <h3 id="vector删除元素的方式"><a href="#vector删除元素的方式" class="headerlink" title="vector删除元素的方式"></a>vector删除元素的方式</h3>1)    向量容器vector的成员函数<strong>pop_back()可以删除最后一个元素</strong><br>2)    而函数<strong>erase()可以删除由一个iterator指出的元素，也可以删除一个指定范围的元素</strong><br>3)    还可以采用<strong>通用算法remove()来删除vector容器中的元素</strong><h3 id="vector越界访问下标，map越界访问下标？vector删除元素时会不会释放空间？"><a href="#vector越界访问下标，map越界访问下标？vector删除元素时会不会释放空间？" class="headerlink" title="vector越界访问下标，map越界访问下标？vector删除元素时会不会释放空间？"></a>vector越界访问下标，map越界访问下标？vector删除元素时会不会释放空间？</h3>1) <strong>通过下标访问vector中的元素时不会做边界检查</strong>，即便下标越界。也就是说，<strong>下标与first迭代器相加的结果超过了finish迭代器的位置</strong>，程序也不会报错，而是返回这个地址中存储的值。如果想在访问vector中的元素时首先进行边界检查，可以使用vector中的at函数。通过使用at函数不但可以通过下标访问vector中的元素，而且在at函数内部会对下标进行边界检查。<br>2) map的下标运算符[]的作用是：<strong>将key作为下标去执行查找，并返回相应的值；如果不存在这个key，就将一个具有该key和value的值插入这个map</strong>。<br>3) <strong>erase()函数，只能删除内容，不能改变容量大小</strong>; erase成员函数，它删除了itVect迭代器指向的元素，并且返回要被删除的itVect之后的迭代器，迭代器相当于一个智能指针;<strong>clear()函数，只能清空内容，不能改变容量大小</strong>;如果要想在删除内容的同时释放内存，那么你可以选择deque容器。</li>
+</ol>
+<p><strong>vector内存空间只增不减，所有内存空间是在vector析构时候才能被系统回收</strong></p>
+<h3 id="vector的增加删除都是怎么做的？"><a href="#vector的增加删除都是怎么做的？" class="headerlink" title="vector的增加删除都是怎么做的？"></a>vector的增加删除都是怎么做的？</h3><p>1)    新增元素：vector通过一个连续的数组存放元素，如果集合已满，在新增数据的时候，就要分配一块更大的内存，将原来的数据复制过来，释放之前的内存，在插入新增的元素<br>2)    对vector的任何操作，<strong>一旦引起空间重新配置，指向原vector的所有迭代器就都失效了</strong><br>3)    初始时刻vector的capacity为0，塞入第一个元素后capacity增加为1；<br>4)    <strong>不同的编译器实现的扩容方式不一样</strong>，VS2015中以1.5倍扩容，GCC以2倍扩容<br>5) 删除<strong>pop_back(),erase(),remove()</strong></p>
+<h2 id="map、hashmap"><a href="#map、hashmap" class="headerlink" title="map、hashmap"></a>map、hashmap</h2><h3 id="map插入方式有几种？"><a href="#map插入方式有几种？" class="headerlink" title="map插入方式有几种？"></a>map插入方式有几种？</h3><p>1) <strong>用insert函数插入pair数据</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mapStudent.insert(pair&lt;<span class="keyword">int</span>, <span class="built_in">string</span>&gt;(<span class="number">1</span>, <span class="string">"student_one"</span>));</span><br></pre></td></tr></table></figure>
+<p>2) <strong>用insert函数插入value_type数据</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mapStudent.insert(<span class="built_in">map</span>&lt;<span class="keyword">int</span>, <span class="built_in">string</span>&gt;::value_type (<span class="number">1</span>, <span class="string">"student_one"</span>));</span><br></pre></td></tr></table></figure>
+<p>3) <strong>insert函数中使用make_pair()函数</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mapStudent.insert(make_pair(<span class="number">1</span>, <span class="string">"student_one"</span>));</span><br></pre></td></tr></table></figure>
+<p>4) <strong>用数组方式插入数据</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mapStudent[<span class="number">1</span>] = <span class="string">"student_one"</span>;</span><br></pre></td></tr></table></figure>
+<h3 id="hashmap与map的区别"><a href="#hashmap与map的区别" class="headerlink" title="hashmap与map的区别"></a>hashmap与map的区别</h3><ol>
+<li>底层实现不同，<strong>前者是红黑树，后者是哈希表</strong></li>
+<li><strong>map具有自动排序的功能，hash_map不具有自动排序的功能</strong></li>
+<li>hashtable有一些无法处理的型别<h3 id="STL中unordered-map-hash-map-和map的区别，hash-map如何解决冲突以及扩容"><a href="#STL中unordered-map-hash-map-和map的区别，hash-map如何解决冲突以及扩容" class="headerlink" title="STL中unordered_map(hash_map)和map的区别，hash_map如何解决冲突以及扩容"></a>STL中unordered_map(hash_map)和map的区别，hash_map如何解决冲突以及扩容</h3>1)    unordered_map和map类似，都是存储的key-value的值，可以通过key快速索引到value。<strong>不同的是unordered_map不会根据key的大小进行排序</strong><br>2)    存储时是根据key的hash值判断元素是否相同，即unordered_map内部元素是无序的，而map中的元素是按照二叉搜索树存储，进行中序遍历会得到有序遍历。<br>3)    所以使用时map的key需要定义operator&lt;。而unordered_map需要定义hash_value函数并且重载operator==。但是很多系统内置的数据类型都自带这些<br>4)    那么如果是自定义类型，那么就需要自己重载operator&lt;或者hash_value()了。<br>5)    如果需要内部元素自动排序，使用map，不需要排序使用unordered_map<br>6)    unordered_map的底层实现是hash_table<br>7)    <strong>hash_map底层使用的是hash_table，而hash_table使用的开链法进行冲突避免，所有hash_map采用开链法进行冲突解决</strong><br>8)    <strong>什么时候扩容</strong>：当向容器添加元素的时候，会判断当前容器的元素个数，如果大于等于<strong>阈值—即当前数组的长度乘以加载因子的值</strong>的时候，就要自动扩容啦。<br>扩容(resize)就是重新计算容量，向HashMap对象里不停的添加元素，而HashMap对象内部的数组无法装载更多的元素时，对象就需要扩大数组的长度，以便能装入更多的元素。<h3 id="STL中hash-map扩容发生什么？"><a href="#STL中hash-map扩容发生什么？" class="headerlink" title="STL中hash_map扩容发生什么？"></a>STL中hash_map扩容发生什么？</h3>1)    hash table表格内的元素称为桶（bucket),而由桶所链接的元素称为节点（node),其中存入桶元素的容器为stl本身很重要的一种序列式容器——vector容器。之所以选择vector为存放桶元素的基础容器，主要是因为vector容器本身具有动态扩容能力，无需人工干预。<br>2)    向前操作：首先尝试从目前所指的节点出发，前进一个位置（节点），由于节点被安置于list内，所以利用节点的next指针即可轻易完成前进操作，如果目前正巧是list的尾端，就跳至下一个bucket身上，那正是指向下一个list的头部节点。</li>
+</ol>
+<h3 id="map-与find的区别？"><a href="#map-与find的区别？" class="headerlink" title="map[]与find的区别？"></a>map[]与find的区别？</h3><p>1)    map的下标运算符[]的作用是：<strong>将关键码作为下标去执行查找</strong>，并返回对应的值；如果<strong>不存在这个关键码，就将一个具有该关键码和值类型的默认值的项插入这个map</strong>。<br>2)    map的find函数：<strong>用关键码执行查找</strong>，找到了返回该位置的迭代器；如果<strong>不存在这个关键码，就返回尾迭代器</strong>。</p>
+<h2 id="list"><a href="#list" class="headerlink" title="list"></a>list</h2><h3 id="STL中list与deque之间的区别"><a href="#STL中list与deque之间的区别" class="headerlink" title="STL中list与deque之间的区别"></a>STL中list与deque之间的区别</h3><p>1)    list<strong>不能够像vector一样以普通指针作为迭代器，因为其节点不保证在存储空间中连续存在</strong><br>2)    list<strong>插入操作和删除操作都不会造成原有的list迭代器失效</strong><br>3)    list不仅是一个双向链表，而且还是一个环状双向链表，所以它只需要一个指针<br>4)    list不像vector那样有可能在空间不足时做重新配置、数据移动的操作，所以<strong>插入前的所有迭代器在插入操作之后都仍然有效</strong><br>5)    deque是一种双向开口的连续线性空间，所谓双向开口，意思是可以在头尾两端分别做元素的插入和删除操作；可以在头尾两端分别做元素的插入和删除操作<br>deque和vector最大的差异，<strong>一在于deque允许常数时间内对起头端进行元素的插入或移除操作，二在于deque没有所谓容量概念，因为它是动态地以分段连续空间组合而成，随时可以增加一段新的空间并链接起来，deque没有所谓的空间保留功能</strong>。</p>
+<h2 id="set、hashset"><a href="#set、hashset" class="headerlink" title="set、hashset"></a>set、hashset</h2><h3 id="set与hash-set的区别"><a href="#set与hash-set的区别" class="headerlink" title="set与hash_set的区别"></a>set与hash_set的区别</h3><ol>
+<li><strong>set底层是以RB-Tree实现，hash_set底层是以hash_table实现的</strong></li>
+<li><strong>RB-Tree有自动排序功能，而hash_table不具有自动排序功能</strong></li>
+<li>set和hash_set元素的键值就是实值</li>
+<li>hash_table有一些无法处理的型别<h3 id="map、set是怎么实现的，红黑树是怎么能够同时实现这两种容器？-为什么使用红黑树？"><a href="#map、set是怎么实现的，红黑树是怎么能够同时实现这两种容器？-为什么使用红黑树？" class="headerlink" title="map、set是怎么实现的，红黑树是怎么能够同时实现这两种容器？ 为什么使用红黑树？"></a>map、set是怎么实现的，红黑树是怎么能够同时实现这两种容器？ 为什么使用红黑树？</h3>1) 他们的底层都是<strong>以红黑树的结构实现</strong>，因此<strong>插入删除等操作都在O(logn)时间内完成</strong>，因此可以完成高效的插入删除<br>2) 在这里我们定义了一个<strong>模版参数</strong>，如果它是key那么它就是set，如果它是map，那么它就是map；<strong>底层是红黑树，实现map的红黑树的节点数据类型是key+value，而实现set的节点数据类型是value</strong><br>3) 因为map和set要求是自动排序的，红黑树能够实现这一功能，而且时间复杂度比较低。</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/19/C++(%E5%86%85%E5%AD%98)/" rel="prev" title="C++(内存)">
+      <i class="fa fa-chevron-left"></i> C++(内存)
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#容器"><span class="nav-number">1.</span> <span class="nav-text">容器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#容器内部删除一个元素"><span class="nav-number">1.1.</span> <span class="nav-text">容器内部删除一个元素</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#标准库是什么？"><span class="nav-number">1.2.</span> <span class="nav-text">标准库是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如何在共享内存上使用stl标准库？"><span class="nav-number">1.3.</span> <span class="nav-text">如何在共享内存上使用stl标准库？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#STL迭代器如何实现"><span class="nav-number">1.4.</span> <span class="nav-text">STL迭代器如何实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#各种容器的底层数据结构"><span class="nav-number">1.5.</span> <span class="nav-text">各种容器的底层数据结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#STL中的allocator-deallocator"><span class="nav-number">1.6.</span> <span class="nav-text">STL中的allocator,deallocator</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#vector"><span class="nav-number">2.</span> <span class="nav-text">vector</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#vector与list的区别与应用？怎么找某vector或者list的倒数第二个元素"><span class="nav-number">2.1.</span> <span class="nav-text">vector与list的区别与应用？怎么找某vector或者list的倒数第二个元素</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#STL-vector的实现？"><span class="nav-number">2.2.</span> <span class="nav-text">STL vector的实现？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#删除其中的元素，迭代器如何变化？"><span class="nav-number">2.3.</span> <span class="nav-text">删除其中的元素，迭代器如何变化？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么是两倍扩容？"><span class="nav-number">2.4.</span> <span class="nav-text">为什么是两倍扩容？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#vector释放空间"><span class="nav-number">2.5.</span> <span class="nav-text">vector释放空间</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么是1-5倍？"><span class="nav-number">2.6.</span> <span class="nav-text">为什么是1.5倍？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#vector删除元素的方式"><span class="nav-number">2.7.</span> <span class="nav-text">vector删除元素的方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#vector越界访问下标，map越界访问下标？vector删除元素时会不会释放空间？"><span class="nav-number">2.8.</span> <span class="nav-text">vector越界访问下标，map越界访问下标？vector删除元素时会不会释放空间？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#vector的增加删除都是怎么做的？"><span class="nav-number">2.9.</span> <span class="nav-text">vector的增加删除都是怎么做的？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#map、hashmap"><span class="nav-number">3.</span> <span class="nav-text">map、hashmap</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#map插入方式有几种？"><span class="nav-number">3.1.</span> <span class="nav-text">map插入方式有几种？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#hashmap与map的区别"><span class="nav-number">3.2.</span> <span class="nav-text">hashmap与map的区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#STL中unordered-map-hash-map-和map的区别，hash-map如何解决冲突以及扩容"><span class="nav-number">3.3.</span> <span class="nav-text">STL中unordered_map(hash_map)和map的区别，hash_map如何解决冲突以及扩容</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#STL中hash-map扩容发生什么？"><span class="nav-number">3.4.</span> <span class="nav-text">STL中hash_map扩容发生什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#map-与find的区别？"><span class="nav-number">3.5.</span> <span class="nav-text">map[]与find的区别？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#list"><span class="nav-number">4.</span> <span class="nav-text">list</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#STL中list与deque之间的区别"><span class="nav-number">4.1.</span> <span class="nav-text">STL中list与deque之间的区别</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#set、hashset"><span class="nav-number">5.</span> <span class="nav-text">set、hashset</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#set与hash-set的区别"><span class="nav-number">5.1.</span> <span class="nav-text">set与hash_set的区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#map、set是怎么实现的，红黑树是怎么能够同时实现这两种容器？-为什么使用红黑树？"><span class="nav-number">5.2.</span> <span class="nav-text">map、set是怎么实现的，红黑树是怎么能够同时实现这两种容器？ 为什么使用红黑树？</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Sideolobes</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Sideolobes</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

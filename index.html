@@ -139,6 +139,262 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://sideolobes.github.io/2020/03/19/C++(STL%E6%A0%87%E5%87%86%E5%BA%93)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Sideolobes">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/03/19/C++(STL%E6%A0%87%E5%87%86%E5%BA%93)/" class="post-title-link" itemprop="url">C++(STL标准库)</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-03-19 08:39:59" itemprop="dateCreated datePublished" datetime="2020-03-19T08:39:59+08:00">2020-03-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-03-20 09:35:00" itemprop="dateModified" datetime="2020-03-20T09:35:00+08:00">2020-03-20</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="容器"><a href="#容器" class="headerlink" title="容器"></a>容器</h2><h3 id="容器内部删除一个元素"><a href="#容器内部删除一个元素" class="headerlink" title="容器内部删除一个元素"></a>容器内部删除一个元素</h3><p>1)    <strong>顺序容器</strong>:顺序容器有以下三种：可变长动态数组 vector、双端队列 deque、双向链表 list。<br>erase迭代器<strong>不仅使所指向被删除的迭代器失效，而且使被删元素之后的所有迭代器失效(list除外)</strong>，所以不能使用erase(it++)的方式，但是erase的返回值是下一个有效迭代器；</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">It = c.erase(it);</span><br></pre></td></tr></table></figure>
+<p>2)    <strong>关联容器</strong>:关联容器有以下四种：set、multiset、map、multimap。<br>erase迭代器<strong>只是被删除元素的迭代器失效，但是返回值是void，所以要采用erase(it++)的方式删除迭代器</strong>；</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">c.erase(it++)</span><br></pre></td></tr></table></figure>
+<h3 id="标准库是什么？"><a href="#标准库是什么？" class="headerlink" title="标准库是什么？"></a>标准库是什么？</h3><p>C++ 标准库可以分为两部分：</p>
+<p>1) <strong>标准函数库</strong>:这个库是由通用的、独立的、不属于任何类的函数组成的。函数库继承自 C 语言。<br>输入/输出 I/O、字符串和字符处理、数学、时间、日期和本地化、动态分配、其他、宽字符函数<br>2) <strong>面向对象类库</strong>:这个库是类及其相关函数的集合<br>标准的 C++ I/O 类、String 类、数值类、STL 容器类、STL 算法、STL 函数对象、STL 迭代器、STL 分配器、本地化库、异常处理类、杂项支持库</p>
+<h3 id="如何在共享内存上使用stl标准库？"><a href="#如何在共享内存上使用stl标准库？" class="headerlink" title="如何在共享内存上使用stl标准库？"></a>如何在共享内存上使用stl标准库？</h3><p>1)    想像一下把STL容器，例如map, vector, list等等，放入共享内存中，IPC一旦有了这些强大的通用数据结构做辅助，无疑进程间通信的能力一下子强大了很多。我们没必要再为共享内存设计其他额外的数据结构，另外，STL的高度可扩展性将为IPC所驱使。STL容器被良好的封装，默认情况下有它们自己的内存管理方案。当一个元素被插入到一个STL列表(list)中时，列表容器自动为其分配内存，保存数据。考虑到要将STL容器放到共享内存中，而容器却自己在堆上分配内存。一个最笨拙的办法是在堆上构造STL容器，然后把容器复制到共享内存，并且确保所有容器的内部分配的内存指向共享内存中的相应区域，这基本是个不可能完成的任务。<br>2)    假设进程A在共享内存中放入了数个容器，进程B如何找到这些容器呢？一个方法就是进程A把容器放在共享内存中的确定地址上（fixed offsets），则进程B可以从该已知地址上获取容器。另外一个改进点的办法是，进程A先在共享内存某块确定地址上放置一个map容器，然后进程A再创建其他容器，然后给其取个名字和地址一并保存到这个map容器里。进程B知道如何获取该保存了地址映射的map容器，然后同样再根据名字取得其他容器的地址。</p>
+<h3 id="STL迭代器如何实现"><a href="#STL迭代器如何实现" class="headerlink" title="STL迭代器如何实现"></a>STL迭代器如何实现</h3><ol>
+<li>迭代器是一种抽象的设计理念，通过迭代器可以在不了解容器内部原理的情况下<strong>遍历容器</strong>，除此之外，STL中迭代器一个最重要的作用就是作为容器与STL算法的粘合剂。</li>
+<li>迭代器的作用就是<strong>提供一个遍历容器内部所有元素的接口</strong>，因此<strong>迭代器内部必须保存一个与容器相关联的指针，然后重载各种运算操作来遍历</strong>，其中最重要的是*运算符与-&gt;运算符，以及++、–等可能需要重载的运算符重载。这和C++中的智能指针很像，智能指针也是将一个指针封装，然后通过引用计数或是其他方法完成自动释放内存的功能。</li>
+<li>最常用的迭代器的相应型别有五种：value type、difference type、pointer、reference、iterator catagoly;<h3 id="各种容器的底层数据结构"><a href="#各种容器的底层数据结构" class="headerlink" title="各种容器的底层数据结构"></a>各种容器的底层数据结构</h3></li>
+<li><strong>vector</strong>      底层数据结构为<strong>数组</strong> ，支持快速随机访问</li>
+<li><strong>list</strong>        底层数据结构为<strong>双向链表</strong>，支持快速增删</li>
+<li><strong>deque</strong>       底层数据结构为<strong>一个中央控制器和多个缓冲区</strong>，详细见STL源码剖析P146，支持首尾（中间不能）快速增删，也支持随机访问;deque是一个双端队列，也是在堆中保存内容的.它的保存形式如下:[堆1]–&gt;[堆2]–&gt;[堆3]–&gt; …每个堆保存好几个元素,然后堆和堆之间有指针指向,看起来像是list和vector的结合品.</li>
+<li><strong>stack</strong>       底层一般用<strong>list或deque</strong>实现，封闭头部即可，不用vector的原因应该是容量大小有限制，扩容耗时</li>
+<li><strong>queue</strong>       底层一般用<strong>list或deque</strong>实现，封闭头部即可，不用vector的原因应该是容量大小有限制，扩容耗时（stack和queue其实是适配器,而不叫容器，因为是对容器的再封装）</li>
+<li><strong>priority_queue</strong>     的底层数据结构一般为<strong>vector为底层容器，堆heap为处理规则来管理底层容器实现</strong></li>
+<li><strong>set</strong>            底层数据结构为<strong>红黑树，有序，不重复</strong></li>
+<li><strong>multiset</strong>       底层数据结构为<strong>红黑树，有序，可重复</strong></li>
+<li><strong>map</strong>            底层数据结构为<strong>红黑树，有序，不重复</strong></li>
+<li><strong>multimap</strong>      底层数据结构为<strong>红黑树，有序，可重复</strong></li>
+<li><strong>hash_set</strong>      底层数据结构为<strong>hash表，无序，不重复</strong></li>
+<li><strong>hash_multiset</strong> 底层数据结构为<strong>hash表，无序，可重复</strong></li>
+<li><strong>hash_map</strong>      底层数据结构为<strong>hash表，无序，不重复</strong></li>
+<li><strong>hash_multimap</strong> 底层数据结构为<strong>hash表，无序，可重复</strong><h3 id="STL中的allocator-deallocator"><a href="#STL中的allocator-deallocator" class="headerlink" title="STL中的allocator,deallocator"></a>STL中的allocator,deallocator</h3>1) <strong>第一级配置器直接使用malloc()、free()和relloc()，第二级配置器视情况采用不同的策略</strong>：当配置区块超过128bytes时，视之为足够大，便调用第一级配置器；当配置器区块小于128bytes时，为了降低额外负担，使用复杂的内存池整理方式，而不再用一级配置器<br>2) <strong>第二级配置器主动将任何小额区块的内存需求量上调至8的倍数，并维护16个free-list，各自管理大小为8~128bytes的小额区块</strong><br>3) 空间配置函数allocate()，<strong>首先判断区块大小，大于128就直接调用第一级配置器，小于128时就检查对应的free-list</strong>。如果<strong>free-list之内有可用区块，就直接拿来用，如果没有可用区块，就将区块大小调整至8的倍数，然后调用refill()，为free-list重新分配空间</strong><br>4) 空间释放函数deallocate()，<strong>该函数首先判断区块大小，大于128bytes时，直接调用一级配置器，小于128bytes就找到对应的free-list然后释放内存</strong></li>
+</ol>
+<h2 id="vector"><a href="#vector" class="headerlink" title="vector"></a>vector</h2><h3 id="vector与list的区别与应用？怎么找某vector或者list的倒数第二个元素"><a href="#vector与list的区别与应用？怎么找某vector或者list的倒数第二个元素" class="headerlink" title="vector与list的区别与应用？怎么找某vector或者list的倒数第二个元素"></a>vector与list的区别与应用？怎么找某vector或者list的倒数第二个元素</h3><p>1)    vector数据结构<br>vector和数组类似，拥有一段<strong>连续的内存空间</strong>，并且<strong>起始地址不变</strong>。因此能高效的进行随机存取，<strong>时间复杂度为o(1)</strong>;但因为内存空间是连续的，所以在进行<strong>插入和删除操作</strong>时，会造成内存块的拷贝，<strong>时间复杂度为o(n)</strong>。另外，当数组中内存空间不够时，会重新申请一块内存空间并进行内存拷贝。连续存储结构：<strong>vector是可以实现动态增长的对象数组，支持对数组高效率的访问和在数组尾端的删除和插入操作，在中间和头部删除和插入相对不易，需要挪动大量的数据</strong>。它与数组最大的区别就是vector不需程序员自己去考虑容量问题，库里面本身已经实现了容量的动态增长，而数组需要程序员手动写入扩容函数进形扩容。<br>2)    list数据结构<br>list是由<strong>双向链表</strong>实现的，因此<strong>内存空间是不连续的</strong>。只能通过指针访问数据，所以<strong>list的随机存取</strong>非常没有效率，<strong>时间复杂度为o(n)</strong>;但由于链表的特点，能高效地进行插入和删除。非连续存储结构：list是一个双链表结构，<strong>支持对链表的双向遍历</strong>。每个节点包括三个信息：元素本身，指向前一个元素的指针（prev）和指向下一个元素的指针（next）。因此list可以高效率的对数据元素任意位置进行访问和插入删除等操作。由于涉及对额外指针的维护，所以开销比较大。<br>3) 区别：<br>vector的随机访问效率高，但在插入和删除时（不包括尾部）需要挪动数据，不易操作。list的访问要遍历整个链表，它的随机访问效率低。但对数据的插入和删除操作等都比较方便，改变指针的指向即可。list是单向的，vector是双向的。vector中的迭代器在使用后就失效了，而list的迭代器在使用之后还可以继续使用。</p>
+<h3 id="STL-vector的实现？"><a href="#STL-vector的实现？" class="headerlink" title="STL vector的实现？"></a>STL vector的实现？</h3><p>size()函数返回的是<strong>已用空间大小</strong>，capacity()返回的是<strong>总空间大小</strong>，capacity()-size()则是<strong>剩余的可用空间大小</strong>。<strong>当size()和capacity()相等，说明vector目前的空间已被用完，如果再添加新元素，则会引起vector空间的动态增长</strong>。<br>由于动态增长会引起<strong>重新分配内存空间、拷贝原空间、释放原空间</strong>，这些过程会降低程序效率。因此，可以使用reserve(n)预先分配一块较大的指定大小的内存空间，<strong>这样当指定大小的内存空间未使用完时，是不会重新分配内存空间的</strong>，这样便提升了效率。<strong>只有当n&gt;capacity()时，调用reserve(n)才会改变vector容量</strong>。<br>resize()成员函数只改变元素的数目，不改变vector的容量。</p>
+<ol>
+<li>空的vector对象，size()和capacity()都为0</li>
+<li>当空间大小不足时，新分配的空间大小为原空间大小的2倍。</li>
+<li>使用reserve()预先分配一块内存后，在空间未满的情况下，不会引起重新分配，从而提升了效率。</li>
+<li>当reserve()分配的空间比原空间小时，是不会引起重新分配的。</li>
+<li><strong>resize()函数只改变容器的元素数目，未改变容器大小</strong>。</li>
+<li>用<strong>reserve(size_type)只是扩大capacity值，这些内存空间可能还是“野”的</strong>，如果此时使用“[ ]”来访问，则可能会越界。而<strong>resize(size_type new_size)会真正使容器具有new_size个对象</strong>。<h3 id="删除其中的元素，迭代器如何变化？"><a href="#删除其中的元素，迭代器如何变化？" class="headerlink" title="删除其中的元素，迭代器如何变化？"></a>删除其中的元素，迭代器如何变化？</h3>erase迭代器不仅使所指向被删除的迭代器失效，而且使被删元素之后的所有迭代器失效(list除外)，所以不能使用erase(it++)的方式，但是erase的返回值是下一个有效迭代器；<h3 id="为什么是两倍扩容？"><a href="#为什么是两倍扩容？" class="headerlink" title="为什么是两倍扩容？"></a>为什么是两倍扩容？</h3></li>
+<li>不同的编译器，vector有不同的扩容大小。在vs下是1.5倍，在GCC下是2倍；</li>
+<li>空间和时间的权衡。简单来说， 空间分配的多，平摊时间复杂度低，但浪费空间也多。</li>
+<li>使用k=2增长因子的问题在于，每次扩展的新尺寸必然刚好大于之前分配的总和，也就是说，之前分配的内存空间不可能被使用。这样对内存不友好。最好把增长因子设为(1,2)<br><img src="/images/vector%E5%86%85%E5%AD%98%E6%89%A9%E5%AE%B9.png" alt="vector内存扩容"></li>
+<li>对比可以发现<strong>采用成倍方式扩容，可以保证常数的时间复杂度</strong>，而增加指定大小的容量只能达到O(n)的时间复杂度，因此，使用成倍的方式扩容。<h3 id="vector释放空间"><a href="#vector释放空间" class="headerlink" title="vector释放空间"></a>vector释放空间</h3>由于vector的<strong>内存占用空间只增不减</strong>，比如你首先分配了10,000个字节，然后erase掉后面9,999个，留下一个有效元素，但是内存占用仍为10,000个。<strong>所有内存空间是在vector析构时候才能被系统回收</strong>。empty()用来检测容器是否为空的，clear()可以清空所有元素。但是<strong>即使clear()，vector所占用的内存空间依然如故，无法保证内存的回收</strong>。<br>如果<strong>需要空间动态缩小，可以考虑使用deque</strong>。如果vector，可以用swap()来帮助你释放内存。<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">vector</span>(Vec).swap(Vec);<span class="comment">//将Vec的内存空洞清除；</span></span><br><span class="line"><span class="built_in">vector</span>().swap(Vec);<span class="comment">//清空Vec的内存；</span></span><br></pre></td></tr></table></figure>
+<h3 id="为什么是1-5倍？"><a href="#为什么是1-5倍？" class="headerlink" title="为什么是1.5倍？"></a>为什么是1.5倍？</h3>对比可以采用成倍方式扩容，可以保证常数的时间复杂度，而增加指定大小的容量只能达到O(n)的时间复杂度，因此，使用成倍的方式扩容。<br>1)    考虑可能产生的堆空间浪费，成倍增长倍数不能太大，使用较为广泛的扩容方式有两种，以2二倍的方式扩容，或者以1.5倍的方式扩容。<br>2)    以2倍的方式扩容，<strong>导致下一次申请的内存必然大于之前分配内存的总和，导致之前分配的内存不能再被使用，所以最好倍增长因子设置为(1,2)之间</strong> <h3 id="vector删除元素的方式"><a href="#vector删除元素的方式" class="headerlink" title="vector删除元素的方式"></a>vector删除元素的方式</h3>1)    向量容器vector的成员函数<strong>pop_back()可以删除最后一个元素</strong><br>2)    而函数<strong>erase()可以删除由一个iterator指出的元素，也可以删除一个指定范围的元素</strong><br>3)    还可以采用<strong>通用算法remove()来删除vector容器中的元素</strong><h3 id="vector越界访问下标，map越界访问下标？vector删除元素时会不会释放空间？"><a href="#vector越界访问下标，map越界访问下标？vector删除元素时会不会释放空间？" class="headerlink" title="vector越界访问下标，map越界访问下标？vector删除元素时会不会释放空间？"></a>vector越界访问下标，map越界访问下标？vector删除元素时会不会释放空间？</h3>1) <strong>通过下标访问vector中的元素时不会做边界检查</strong>，即便下标越界。也就是说，<strong>下标与first迭代器相加的结果超过了finish迭代器的位置</strong>，程序也不会报错，而是返回这个地址中存储的值。如果想在访问vector中的元素时首先进行边界检查，可以使用vector中的at函数。通过使用at函数不但可以通过下标访问vector中的元素，而且在at函数内部会对下标进行边界检查。<br>2) map的下标运算符[]的作用是：<strong>将key作为下标去执行查找，并返回相应的值；如果不存在这个key，就将一个具有该key和value的值插入这个map</strong>。<br>3) <strong>erase()函数，只能删除内容，不能改变容量大小</strong>; erase成员函数，它删除了itVect迭代器指向的元素，并且返回要被删除的itVect之后的迭代器，迭代器相当于一个智能指针;<strong>clear()函数，只能清空内容，不能改变容量大小</strong>;如果要想在删除内容的同时释放内存，那么你可以选择deque容器。</li>
+</ol>
+<p><strong>vector内存空间只增不减，所有内存空间是在vector析构时候才能被系统回收</strong></p>
+<h3 id="vector的增加删除都是怎么做的？"><a href="#vector的增加删除都是怎么做的？" class="headerlink" title="vector的增加删除都是怎么做的？"></a>vector的增加删除都是怎么做的？</h3><p>1)    新增元素：vector通过一个连续的数组存放元素，如果集合已满，在新增数据的时候，就要分配一块更大的内存，将原来的数据复制过来，释放之前的内存，在插入新增的元素<br>2)    对vector的任何操作，<strong>一旦引起空间重新配置，指向原vector的所有迭代器就都失效了</strong><br>3)    初始时刻vector的capacity为0，塞入第一个元素后capacity增加为1；<br>4)    <strong>不同的编译器实现的扩容方式不一样</strong>，VS2015中以1.5倍扩容，GCC以2倍扩容<br>5) 删除<strong>pop_back(),erase(),remove()</strong></p>
+<h2 id="map、hashmap"><a href="#map、hashmap" class="headerlink" title="map、hashmap"></a>map、hashmap</h2><h3 id="map插入方式有几种？"><a href="#map插入方式有几种？" class="headerlink" title="map插入方式有几种？"></a>map插入方式有几种？</h3><p>1) <strong>用insert函数插入pair数据</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mapStudent.insert(pair&lt;<span class="keyword">int</span>, <span class="built_in">string</span>&gt;(<span class="number">1</span>, <span class="string">"student_one"</span>));</span><br></pre></td></tr></table></figure>
+<p>2) <strong>用insert函数插入value_type数据</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mapStudent.insert(<span class="built_in">map</span>&lt;<span class="keyword">int</span>, <span class="built_in">string</span>&gt;::value_type (<span class="number">1</span>, <span class="string">"student_one"</span>));</span><br></pre></td></tr></table></figure>
+<p>3) <strong>insert函数中使用make_pair()函数</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mapStudent.insert(make_pair(<span class="number">1</span>, <span class="string">"student_one"</span>));</span><br></pre></td></tr></table></figure>
+<p>4) <strong>用数组方式插入数据</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mapStudent[<span class="number">1</span>] = <span class="string">"student_one"</span>;</span><br></pre></td></tr></table></figure>
+<h3 id="hashmap与map的区别"><a href="#hashmap与map的区别" class="headerlink" title="hashmap与map的区别"></a>hashmap与map的区别</h3><ol>
+<li>底层实现不同，<strong>前者是红黑树，后者是哈希表</strong></li>
+<li><strong>map具有自动排序的功能，hash_map不具有自动排序的功能</strong></li>
+<li>hashtable有一些无法处理的型别<h3 id="STL中unordered-map-hash-map-和map的区别，hash-map如何解决冲突以及扩容"><a href="#STL中unordered-map-hash-map-和map的区别，hash-map如何解决冲突以及扩容" class="headerlink" title="STL中unordered_map(hash_map)和map的区别，hash_map如何解决冲突以及扩容"></a>STL中unordered_map(hash_map)和map的区别，hash_map如何解决冲突以及扩容</h3>1)    unordered_map和map类似，都是存储的key-value的值，可以通过key快速索引到value。<strong>不同的是unordered_map不会根据key的大小进行排序</strong><br>2)    存储时是根据key的hash值判断元素是否相同，即unordered_map内部元素是无序的，而map中的元素是按照二叉搜索树存储，进行中序遍历会得到有序遍历。<br>3)    所以使用时map的key需要定义operator&lt;。而unordered_map需要定义hash_value函数并且重载operator==。但是很多系统内置的数据类型都自带这些<br>4)    那么如果是自定义类型，那么就需要自己重载operator&lt;或者hash_value()了。<br>5)    如果需要内部元素自动排序，使用map，不需要排序使用unordered_map<br>6)    unordered_map的底层实现是hash_table<br>7)    <strong>hash_map底层使用的是hash_table，而hash_table使用的开链法进行冲突避免，所有hash_map采用开链法进行冲突解决</strong><br>8)    <strong>什么时候扩容</strong>：当向容器添加元素的时候，会判断当前容器的元素个数，如果大于等于<strong>阈值—即当前数组的长度乘以加载因子的值</strong>的时候，就要自动扩容啦。<br>扩容(resize)就是重新计算容量，向HashMap对象里不停的添加元素，而HashMap对象内部的数组无法装载更多的元素时，对象就需要扩大数组的长度，以便能装入更多的元素。<h3 id="STL中hash-map扩容发生什么？"><a href="#STL中hash-map扩容发生什么？" class="headerlink" title="STL中hash_map扩容发生什么？"></a>STL中hash_map扩容发生什么？</h3>1)    hash table表格内的元素称为桶（bucket),而由桶所链接的元素称为节点（node),其中存入桶元素的容器为stl本身很重要的一种序列式容器——vector容器。之所以选择vector为存放桶元素的基础容器，主要是因为vector容器本身具有动态扩容能力，无需人工干预。<br>2)    向前操作：首先尝试从目前所指的节点出发，前进一个位置（节点），由于节点被安置于list内，所以利用节点的next指针即可轻易完成前进操作，如果目前正巧是list的尾端，就跳至下一个bucket身上，那正是指向下一个list的头部节点。</li>
+</ol>
+<h3 id="map-与find的区别？"><a href="#map-与find的区别？" class="headerlink" title="map[]与find的区别？"></a>map[]与find的区别？</h3><p>1)    map的下标运算符[]的作用是：<strong>将关键码作为下标去执行查找</strong>，并返回对应的值；如果<strong>不存在这个关键码，就将一个具有该关键码和值类型的默认值的项插入这个map</strong>。<br>2)    map的find函数：<strong>用关键码执行查找</strong>，找到了返回该位置的迭代器；如果<strong>不存在这个关键码，就返回尾迭代器</strong>。</p>
+<h2 id="list"><a href="#list" class="headerlink" title="list"></a>list</h2><h3 id="STL中list与deque之间的区别"><a href="#STL中list与deque之间的区别" class="headerlink" title="STL中list与deque之间的区别"></a>STL中list与deque之间的区别</h3><p>1)    list<strong>不能够像vector一样以普通指针作为迭代器，因为其节点不保证在存储空间中连续存在</strong><br>2)    list<strong>插入操作和删除操作都不会造成原有的list迭代器失效</strong><br>3)    list不仅是一个双向链表，而且还是一个环状双向链表，所以它只需要一个指针<br>4)    list不像vector那样有可能在空间不足时做重新配置、数据移动的操作，所以<strong>插入前的所有迭代器在插入操作之后都仍然有效</strong><br>5)    deque是一种双向开口的连续线性空间，所谓双向开口，意思是可以在头尾两端分别做元素的插入和删除操作；可以在头尾两端分别做元素的插入和删除操作<br>deque和vector最大的差异，<strong>一在于deque允许常数时间内对起头端进行元素的插入或移除操作，二在于deque没有所谓容量概念，因为它是动态地以分段连续空间组合而成，随时可以增加一段新的空间并链接起来，deque没有所谓的空间保留功能</strong>。</p>
+<h2 id="set、hashset"><a href="#set、hashset" class="headerlink" title="set、hashset"></a>set、hashset</h2><h3 id="set与hash-set的区别"><a href="#set与hash-set的区别" class="headerlink" title="set与hash_set的区别"></a>set与hash_set的区别</h3><ol>
+<li><strong>set底层是以RB-Tree实现，hash_set底层是以hash_table实现的</strong></li>
+<li><strong>RB-Tree有自动排序功能，而hash_table不具有自动排序功能</strong></li>
+<li>set和hash_set元素的键值就是实值</li>
+<li>hash_table有一些无法处理的型别<h3 id="map、set是怎么实现的，红黑树是怎么能够同时实现这两种容器？-为什么使用红黑树？"><a href="#map、set是怎么实现的，红黑树是怎么能够同时实现这两种容器？-为什么使用红黑树？" class="headerlink" title="map、set是怎么实现的，红黑树是怎么能够同时实现这两种容器？ 为什么使用红黑树？"></a>map、set是怎么实现的，红黑树是怎么能够同时实现这两种容器？ 为什么使用红黑树？</h3>1) 他们的底层都是<strong>以红黑树的结构实现</strong>，因此<strong>插入删除等操作都在O(logn)时间内完成</strong>，因此可以完成高效的插入删除<br>2) 在这里我们定义了一个<strong>模版参数</strong>，如果它是key那么它就是set，如果它是map，那么它就是map；<strong>底层是红黑树，实现map的红黑树的节点数据类型是key+value，而实现set的节点数据类型是value</strong><br>3) 因为map和set要求是自动排序的，红黑树能够实现这一功能，而且时间复杂度比较低。</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://sideolobes.github.io/2020/03/19/C++(%E5%86%85%E5%AD%98)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Sideolobes">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/03/19/C++(%E5%86%85%E5%AD%98)/" class="post-title-link" itemprop="url">C++(内存)</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-03-19 08:37:44" itemprop="dateCreated datePublished" datetime="2020-03-19T08:37:44+08:00">2020-03-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-03-20 09:34:57" itemprop="dateModified" datetime="2020-03-20T09:34:57+08:00">2020-03-20</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="内存"><a href="#内存" class="headerlink" title="(内存):*"></a>(内存):*</h2><h3 id="c-的内存分配，详细说一下栈、堆、静态存储区？"><a href="#c-的内存分配，详细说一下栈、堆、静态存储区？" class="headerlink" title="c++的内存分配，详细说一下栈、堆、静态存储区？"></a>c++的内存分配，详细说一下栈、堆、静态存储区？</h3><p>1、<strong>栈区(stack)</strong>：由编译器自动分配释放，存放函数的参数值，局部变量的值等,其操作方式类似于数据结构中的栈<br>2、<strong>堆区(heap)</strong>：一般由程序员分配释放，若程序员不释放，程序结束时可能由OS（操作系统）回收;注意它与数据结构中的堆是两回事，分配方式倒是类似于链表<br>3、<strong>全局区(静态区)(static)</strong>:全局变量和静态变量的存储是放在一块的，初始化的全局变量和静态变量在一块区域，未初始化的全局变量和未初始化的静态变量在相邻的另一块区域。程序结束后由系统释放<br>4、<strong>文字常量区</strong>:常量字符串就是放在这里的,程序结束后由系统释放<br>5、<strong>程序代码区</strong>:存放函数体的二进制代码 </p>
+<h3 id="堆与栈的区别？"><a href="#堆与栈的区别？" class="headerlink" title="堆与栈的区别？"></a>堆与栈的区别？</h3><p>1)    <strong>管理方式</strong>：对于<strong>栈来讲，是由编译器自动管理</strong>，无需我们手工控制；对于<strong>堆来说，释放工作由程序员控制</strong>，容易产生memory leak。<br>2)    <strong>空间大小</strong>：一般来讲在32位系统下，堆内存可以达到4G的空间，从这个角度来看<strong>堆内存几乎是没有什么限制的。但是对于栈来讲，一般都是有一定的空间大小的</strong><br>(例如，在VC6下面，默认的栈空间大小是1M（好像是，记不清楚了）。当然，我们可以修改： 打开工程，依次操作菜单如下：Project-&gt;Setting-&gt;Link，在Category 中选中Output，然后在Reserve中设定堆栈的最大值和commit。 注意：reserve最小值为4Byte；commit是保留在虚拟内存的页文件里面，它设置的较大会使栈开辟较大的值，可能增加内存的开销和启动时间)<br>3)    <strong>碎片问题</strong>：<strong>对于堆来讲，频繁的new/delete势必会造成内存空间的不连续，从而造成大量的碎片</strong>，使程序效率降低。<strong>对于栈来讲，则不会存在这个问题</strong>，因为栈是先进后出的队列，他们是如此的一一对应，以至于永远都不可能有一个内存块从栈中间弹出，在他弹出之前，在他上面的后进的栈内容已经被弹出<br>4)    <strong>生长方向</strong>：<strong>对于堆来讲，生长方向是向上的，也就是向着内存地址增加的方向；对于栈来讲，它的生长方向是向下的，是向着内存地址减小的方向增长</strong><br>5)    <strong>分配方式</strong>：<strong>堆都是动态分配的，没有静态分配的堆</strong>。<strong>栈有2种分配方式：静态分配和动态分配</strong>。静态分配是编译器完成的，比如局部变量的分配。动态分配由alloca函数进行分配，但是栈的动态分配和堆是不同的，它的动态分配是由编译器进行释放，无需我们手工实现。<br>6)    <strong>分配效率</strong>：<strong>栈是机器系统提供的数据结构，计算机会在底层对栈提供支持：分配专门的寄存器存放栈的地址，压栈出栈都有专门的指令执行，这就决定了栈的效率比较高</strong>。堆则是C/C++函数库提供的，它的机制是很复杂的，例如为了分配一块内存，库函数会按照一定的算法（具体的算法可以参考数据结构/操作系统）在堆内存中搜索可用的足够大小的空间，如果没有足够大小的空间（可能是由于内存碎片太多），就有可能调用系统功能去增加程序数据段的内存空间，这样就有机会分到足够大小的内存，然后进行返回。<strong>显然，堆的效率比栈要低得多</strong></p>
+<h3 id="野指针是什么？如何检测内存泄漏？"><a href="#野指针是什么？如何检测内存泄漏？" class="headerlink" title="野指针是什么？如何检测内存泄漏？"></a>野指针是什么？如何检测内存泄漏？</h3><p>1)    野指针：<strong>指向内存被释放的内存或者没有访问权限的内存的指针</strong><br>2)    “野指针”的成因主要有3种：<br>① <strong>指针变量没有被初始化</strong>:<strong>任何指针变量刚被创建时不会自动成为NULL指针，它的缺省值是随机的</strong>，它会乱指一气。所以，指针变量在创建的同时应当被初始化，要么将指针设置为NULL，要么让它指向合法的内存。例如</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span> *p = <span class="literal">NULL</span>;</span><br><span class="line"><span class="keyword">char</span> *str = <span class="keyword">new</span> <span class="keyword">char</span>(<span class="number">100</span>);</span><br></pre></td></tr></table></figure>
+<p>②<strong>指针p被free或者delete之后，没有置为NULL</strong><br>③    <strong>指针操作超越了变量的作用范围</strong>：不要返回指向栈内存的指针或引用，因为栈内存在函数结束时会被释放。<br>3. 如何避免野指针：<br>1)<strong>对指针进行初始化</strong><br>①将指针初始化为NULL</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span> *   p  = <span class="literal">NULL</span>;</span><br></pre></td></tr></table></figure>
+<p>②用malloc分配内存</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span> * p = (<span class="keyword">char</span> * )<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="keyword">char</span>));</span><br></pre></td></tr></table></figure>
+<p>③用已有合法的可访问的内存地址对指针初始化</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span> num[ <span class="number">30</span>] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line"><span class="keyword">char</span> *p = num;</span><br></pre></td></tr></table></figure>
+<p>2)<strong>指针用完后释放内存，将指针赋NULL</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">delete</span>(p);</span><br><span class="line">p = <span class="literal">NULL</span>;</span><br></pre></td></tr></table></figure>
+<h3 id="悬空指针和野指针有什么区别？"><a href="#悬空指针和野指针有什么区别？" class="headerlink" title="悬空指针和野指针有什么区别？"></a>悬空指针和野指针有什么区别？</h3><p>1)    野指针：野指针指，<strong>访问一个已删除或访问受限的内存区域的指针</strong>，野指针不能判断是否为NULL来避免。指针没有初始化，释放后没有置空，越界<br>2)    悬空指针：<strong>一个指针的指向对象已被删除</strong>，那么就成了悬空指针。野指针是那些未初始化的指针。</p>
+<h3 id="内存泄漏"><a href="#内存泄漏" class="headerlink" title="内存泄漏"></a>内存泄漏</h3><p>1) 内存泄漏是指由于疏忽或错误造成了程序未能释放掉不再使用的内存的情况。<strong>内存泄漏并非指内存在物理上消失，而是应用程序分配某段内存后，由于设计错误，失去了对该段内存的控制</strong><br>2) 后果：只发生一次小的内存泄漏可能不被注意，但泄漏大量内存的程序将会出现各种征兆：性能下降到内存逐渐用完，导致另一个程序失败</p>
+<h3 id="如何排除内存泄漏"><a href="#如何排除内存泄漏" class="headerlink" title="如何排除内存泄漏"></a>如何排除内存泄漏</h3><p>使用工具软件BoundsChecker，BoundsChecker是一个运行时错误检测工具，它主要定位程序运行时期发生的各种错误；<br>调试运行DEBUG版程序，运用以下技术：CRT(C run-time libraries)、运行时函数调用堆栈、内存泄漏时提示的内存分配序号(集成开发环境OUTPUT窗口)，综合分析内存泄漏的原因，排除内存泄漏。</p>
+<h3 id="内存泄漏解决方法"><a href="#内存泄漏解决方法" class="headerlink" title="内存泄漏解决方法"></a>内存泄漏解决方法</h3><p>智能指针</p>
+<h3 id="检查、定位内存泄漏"><a href="#检查、定位内存泄漏" class="headerlink" title="检查、定位内存泄漏"></a>检查、定位内存泄漏</h3><p>1) 检查方法<br><strong>在main函数最后面一行，加上一句_CrtDumpMemoryLeaks()</strong>。调试程序，自然关闭程序让其退出，查看输出：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//输出这样的格式</span></span><br><span class="line">&#123;<span class="number">453</span>&#125;normal block at <span class="number">0x02432CA8</span>,<span class="number">868</span> bytes <span class="keyword">long</span></span><br><span class="line"><span class="comment">//被&#123;&#125;包围的453就是我们需要的内存泄漏定位值</span></span><br><span class="line"><span class="comment">//868 bytes long就是说这个地方有868比特内存没有释放</span></span><br></pre></td></tr></table></figure>
+<p>2) 定位代码位置<br><strong>在main函数第一行加上_CrtSetBreakAlloc(453)</strong>;意思就是在申请453这块内存的位置中断。然后调试程序，程序中断了，查看调用堆栈。加上头文件</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;crtdbg.h&gt;</span></span></span><br></pre></td></tr></table></figure>
+<h3 id="new和malloc的区别？"><a href="#new和malloc的区别？" class="headerlink" title="new和malloc的区别？"></a>new和malloc的区别？</h3><p>1、    new/delete是C++关键字，需要编译器支持。malloc/free是库函数，需要头文件支持；<br>2、    使用new操作符申请内存分配时<strong>无须指定内存块的大小</strong>，编译器会根据类型信息自行计算。而malloc则需要<strong>显式地指出所需内存的尺寸</strong>。<br>3、    new操作符内存分配成功时，<strong>返回的是对象类型的指针，类型严格与对象匹配，无须进行类型转换</strong>，故new是符合类型安全性的操作符。而<strong>malloc内存分配成功则是返回void* ，需要通过强制类型转换将void*指针转换成我们需要的类型</strong>。<br>4、    new<strong>内存分配失败</strong>时，会抛出bac_alloc异常。malloc分配内存失败时返回NULL。<br>5、    new会先调用operator new函数，申请足够的内存（通常底层使用malloc实现）。然后调用类型的构造函数，初始化成员变量，最后返回自定义类型指针。delete先调用析构函数，然后调用operator delete函数释放内存（通常底层使用free实现）。<strong>malloc/free是库函数，只能动态的申请和释放内存，无法强制要求其做自定义类型对象构造和析构工作</strong>。</p>
+<h3 id="delete-p-与delete-p，allocator"><a href="#delete-p-与delete-p，allocator" class="headerlink" title="delete p;与delete[]p，allocator"></a>delete p;与delete[]p，allocator</h3><p>1、    动态数组管理new一个数组时，[]中必须是一个整数，但是不一定是常量整数，普通数组必须是一个常量整数；<br>2、    new动态数组返回的并不是数组类型，而是一个元素类型的指针；<br>3、    delete[]时，数组中的元素按逆序的顺序进行销毁；<br>4、    new在内存分配上面有一些局限性，<strong>new的机制是将内存分配和对象构造组合在一起，同样的，delete也是将对象析构和内存释放组合在一起的。allocator将这两部分分开进行，allocator申请一部分内存，不进行初始化对象，只有当需要的时候才进行初始化操作</strong>。</p>
+<h3 id="new和delete的实现原理，-delete是如何知道释放内存的大小的额？"><a href="#new和delete的实现原理，-delete是如何知道释放内存的大小的额？" class="headerlink" title="new和delete的实现原理， delete是如何知道释放内存的大小的额？"></a>new和delete的实现原理， delete是如何知道释放内存的大小的额？</h3><p>1、    new简单类型直接调用operator new分配内存；而对于复杂结构，先调用operator new分配内存，然后在分配的内存上调用构造函数；对于简单类型，new[]计算好大小后调用<strong>operator new</strong>；对于复杂数据结构，<strong>new[]先调用operator new[] 分配内存，然后在p的前四个字节写入数组大小n，然后调用n次构造函数，针对复杂类型，new[]会额外存储数组大小</strong><br>①    new表达式调用一个名为operator  new(operator new[])函数，分配一块足够大的、原始的、未命名的内存空间；<br>②    编译器运行相应的构造函数以构造这些对象，并为其传入初始值；<br>③    对象被分配了空间并构造完成，返回一个指向该对象的指针。<br>2、    <strong>delete简单数据类型默认只是调用free函数；复杂数据类型先调用析构函数再调用operator delete</strong>；针对简单类型，delete和delete[] 等同。假设指针p指向new[] 分配的内存。因为要4字节存储数组大小，实际分配的内存地址为[p-4]，系统记录的也是这个地址。<strong>delete[]实际释放的就是p-4指向的内存。而delete会直接释放p指向的内存，这个内存根本没有被系统记录，所以会崩溃</strong>。<br>3、    需要在new[]一个对象数组时，需要保存数组的维度，<strong>C++的做法是在分配数组空间时多分配了4个字节的大小，专门保存数组的大小</strong>，在delete [] 时就可以取出这个保存的数，就知道了需要调用析构函数多少次了。</p>
+<h3 id="malloc申请的存储空间能用delete释放吗"><a href="#malloc申请的存储空间能用delete释放吗" class="headerlink" title="malloc申请的存储空间能用delete释放吗"></a>malloc申请的存储空间能用delete释放吗</h3><p><strong>不能</strong>，<strong>malloc /free主要为了兼容C，new和delete 完全可以取代malloc /free的。malloc /free的操作对象都是必须明确大小的。而且不能用在动态类上</strong>。new 和delete会自动进行类型检查和大小，malloc/free不能执行构造函数与析构函数，所以动态对象它是不行的。当然从理论上说使用malloc申请的内存是可以通过delete释放的。不过一般不这样写的。而且也不能保证每个C++的运行时都能正常。</p>
+<h3 id="malloc与free的实现原理？"><a href="#malloc与free的实现原理？" class="headerlink" title="malloc与free的实现原理？"></a>malloc与free的实现原理？</h3><ol>
+<li>在标准C库中，提供了malloc/free函数分配释放内存，这两个函数底层是由brk、mmap、munmap这些系统调用实现的;</li>
+<li><strong>brk是将数据段(.data)的最高地址指针_edata往高地址推</strong>,<strong>mmap是在进程的虚拟地址空间中（堆和栈中间，称为文件映射区域的地方）找一块空闲的虚拟内存</strong>。这两种方式分配的<strong>都是虚拟内存，没有分配物理内存</strong>。在第一次访问已分配的虚拟地址空间的时候，发生缺页中断，操作系统负责分配物理内存，然后建立虚拟内存和物理内存之间的映射关系；</li>
+<li>malloc小于128k的内存，使用brk分配内存，将_edata往高地址推；malloc大于128k的内存，使用mmap分配内存，在堆和栈之间找一块空闲内存分配；<strong>brk分配的内存需要等到高地址内存释放以后才能释放，而mmap分配的内存可以单独释放。当最高地址空间的空闲内存超过128K（可由M_TRIM_THRESHOLD选项调节）时，执行内存紧缩操作（trim）。在上一个步骤free的时候，发现最高地址空闲内存超过128K，于是内存紧缩</strong>。</li>
+<li>malloc是从堆里面申请内存，也就是说函数返回的指针是指向堆里面的一块内存。<strong>操作系统中有一个记录空闲内存地址的链表。当操作系统收到程序的申请时，就会遍历该链表，然后就寻找第一个空间大于所申请空间的堆结点，然后就将该结点从空闲结点链表中删除，并将该结点的空间分配给程序</strong>。<h3 id="malloc、realloc、calloc的区别"><a href="#malloc、realloc、calloc的区别" class="headerlink" title="malloc、realloc、calloc的区别"></a>malloc、realloc、calloc的区别</h3>1)    malloc函数<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span>* <span class="title">malloc</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">int</span> num_size)</span></span>;</span><br><span class="line"><span class="keyword">int</span> *p = <span class="built_in">malloc</span>(<span class="number">20</span>*<span class="keyword">sizeof</span>(<span class="keyword">int</span>));<span class="comment">//申请20个int类型的空间；</span></span><br></pre></td></tr></table></figure>
+2)    calloc函数<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span>* <span class="title">calloc</span><span class="params">(<span class="keyword">size_t</span> n,<span class="keyword">size_t</span> <span class="built_in">size</span>)</span></span>;</span><br><span class="line"><span class="keyword">int</span> *p = <span class="built_in">calloc</span>(<span class="number">20</span>, <span class="keyword">sizeof</span>(<span class="keyword">int</span>));</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p><strong>省去了人为空间计算；malloc申请的空间的值是随机初始化的，calloc申请的空间的值是初始化为0的</strong><br>3)    realloc函数</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">realloc</span><span class="params">(<span class="keyword">void</span> *p, <span class="keyword">size_t</span> new_size)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>给<strong>动态分配的空间分配额外的空间，用于扩充容量</strong></p>
+<h3 id="stdcall和cdecl的区别？"><a href="#stdcall和cdecl的区别？" class="headerlink" title="stdcall和cdecl的区别？"></a><strong>stdcall和</strong>cdecl的区别？</h3><p>1)    <strong>stdcall<br>__stdcall是<strong>函数恢复堆栈</strong>，只有在函数代码的结尾出现一次恢复堆栈的代码；在编译时就规定了参数个数，无法实现不定个数的参数调用；<br>2)    __cdecl<br>__cdecl是<strong>调用者恢复堆栈</strong>，假设有100个函数调用函数a，那么内存中就有100端恢复堆栈的代码；可以不定参数个数；每一个调用它的函数都包含清空堆栈的代码，所以产生的可执行文件大小会比调用</strong>stacall函数大</p>
+<h3 id="内存对齐？位域？"><a href="#内存对齐？位域？" class="headerlink" title="内存对齐？位域？"></a>内存对齐？位域？</h3><ol>
+<li>分配内存的顺序是<strong>按照声明的顺序</strong></li>
+<li>每个变量<strong>相对于起始位置的偏移量必须是该变量类型大小的整数倍</strong>，不是整数倍空出内存，直到偏移量是整数倍为止</li>
+<li>最后<strong>整个结构体的大小必须是里面变量类型最大值的整数倍</strong></li>
+</ol>
+<p>添加了#pragma pack(n)后规则就变成了下面这样：<br>1、 偏移量要是n和当前变量大小中较小值的整数倍<br>2、 整体大小要是n和最大变量大小中较小值的整数倍<br>3、 n值必须为1,2,4,8…，为其他值时就按照默认的分配规则</p>
+<h3 id="内存对齐的原因"><a href="#内存对齐的原因" class="headerlink" title="内存对齐的原因"></a>内存对齐的原因</h3><ol>
+<li>平台原因(移植原因)<br>1)不是所有的硬件平台都能访问任意地址上的任意数据的；<br>2)某些硬件平台只能在某些地址处取某些特定类型的数据，否则抛出硬件异常</li>
+<li>性能原因：<br>1)数据结构(尤其是栈)应该尽可能地在自然边界上对齐。<br>2)原因在于，为了访问未对齐的内存，处理器需要作两次内存访问；而对齐的内存访问仅需要一次访问<h3 id="在成员函数中调用delete-this会出现什么问题？对象还可以使用吗？"><a href="#在成员函数中调用delete-this会出现什么问题？对象还可以使用吗？" class="headerlink" title="在成员函数中调用delete this会出现什么问题？对象还可以使用吗？"></a>在成员函数中调用delete this会出现什么问题？对象还可以使用吗？</h3></li>
+<li>在类对象的内存空间中，只有数据成员和虚函数表指针，并不包含代码内容，类的成员函数单独放在代码段中。在调用成员函数时，隐含传递一个this指针，让成员函数知道当前是哪个对象在调用它。当调用delete this时，类对象的内存空间被释放。<strong>在delete this之后进行的其他任何函数调用，只要不涉及到this指针的内容，都能够正常运行。一旦涉及到this指针，如操作数据成员，调用虚函数等，就会出现不可预期的问题</strong></li>
+<li>为什么是不可预期的问题？<br>delete this之后不是释放了类对象的内存空间了么，那么这段内存应该已经还给系统，不再属于这个进程。照这个逻辑来看，应该发生指针错误，无访问权限之类的令系统崩溃的问题才对，这个问题牵涉到操作系统的内存管理策略。delete this<strong>释放了类对象的内存空间，但是内存空间却并不是马上被回收到系统中，可能是缓冲或者其他什么原因，导致这段内存空间暂时并没有被系统收回</strong>。此时这段内存是可以访问的，你可以加上100，加上200，但是其中的值却是不确定的。当你获取数据成员，可能得到的是一串很长的未初始化的随机数；访问虚函数表，<strong>指针无效的可能性非常高，造成系统崩溃</strong></li>
+<li>如果在类的析构函数中调用delete this，会发生什么？</li>
+</ol>
+<p><strong>会导致堆栈溢出</strong>。原因很简单，delete的本质是“为将被释放的内存调用一个或多个析构函数，然后，释放内存”。显然，<strong>delete this会去调用本对象的析构函数，而析构函数中又调用delete this，形成无限递归，造成堆栈溢出，系统崩溃</strong>。</p>
+<h3 id="查看内存的方法"><a href="#查看内存的方法" class="headerlink" title="查看内存的方法"></a>查看内存的方法</h3><ol>
+<li>首先打开vs编译器，创建好项目，并且将代码写进去，这里就不贴代码了，你可以随便的写个做个测试;</li>
+<li>调试的时候<strong>做好相应的断点，然后点击开始调试</strong>;</li>
+<li>程序调试之后会在你设置断点的地方暂停，然后选择<strong>调试-&gt;窗口-&gt;内存</strong>，就打开了内存数据查看的窗口了。<h3 id="new、delete、operator-new、operator-delete、placement-new、placement-delete"><a href="#new、delete、operator-new、operator-delete、placement-new、placement-delete" class="headerlink" title="new、delete、operator new、operator delete、placement new、placement delete"></a>new、delete、operator new、operator delete、placement new、placement delete</h3>1)    new operator<br>new operator 完成了两件事情：<strong>用于申请内存和初始化对象</strong>，例如：<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">string</span>* ps = <span class="keyword">new</span> <span class="built_in">string</span>(<span class="string">"abc"</span>);</span><br></pre></td></tr></table></figure>
+2)    operator new<br>operator new 类似于C语言中的malloc，<strong>只是负责申请内存</strong>,例如：<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span>* <span class="built_in">buffer</span> = <span class="keyword">operator</span> <span class="keyword">new</span>(<span class="keyword">sizeof</span>(<span class="built_in">string</span>));<span class="comment">// 注意这里new前要有个operator</span></span><br></pre></td></tr></table></figure>
+3)    placement new</li>
+</ol>
+<p><strong>用于在给定的内存中初始化对象</strong>，例如：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span>* <span class="built_in">buffer</span> = <span class="keyword">operator</span> <span class="keyword">new</span>(<span class="keyword">sizeof</span>(<span class="built_in">string</span>));</span><br><span class="line"><span class="built_in">buffer</span> = <span class="keyword">new</span>(<span class="built_in">buffer</span>) <span class="built_in">string</span>(<span class="string">"abc"</span>);</span><br></pre></td></tr></table></figure>
+<p>调用了placement new，在buffer所指向的内存中创建了一个string类型的对象并且初始值为“abc”<br>4)    因此可以看出：<strong>new operator 可以分解operator new 和 placement new两个动作</strong>，是 operator new 和 placement new 的结合。<br>与new对应的<strong>delete没有 placement delete 语法</strong>，它只有两种，分别是delete operator 和 operator delete。<br>delete operator 和 new operator 对应，完成析构对象和释放内存的操作。而 operator delete 只是用于内存的释放，与C语言中的free相似。</p>
+<h3 id="大内存申请时候选用哪种？C-变量存在哪？变量的大小存在哪？符号表存在哪？"><a href="#大内存申请时候选用哪种？C-变量存在哪？变量的大小存在哪？符号表存在哪？" class="headerlink" title="大内存申请时候选用哪种？C++变量存在哪？变量的大小存在哪？符号表存在哪？"></a>大内存申请时候选用哪种？C++变量存在哪？变量的大小存在哪？符号表存在哪？</h3><ol>
+<li>大内存申请时，采用堆申请空间，用new申请；</li>
+<li>不同的变量存储在不同的地方，局部变量、全局变量、静态变量；</li>
+<li>C++对变量名不作存储，在汇编以后不会出现变量名，变量名作用只是用于方便编译成汇编代码，是给编译器看的，是方便人阅读的</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://sideolobes.github.io/2020/03/18/C++(%E7%B1%BB%E7%BB%A7%E6%89%BF%EF%BC%89/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -270,7 +526,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-18 22:14:01" itemprop="dateModified" datetime="2020-03-18T22:14:01+08:00">2020-03-18</time>
+                <time title="修改时间：2020-03-20 09:10:27" itemprop="dateModified" datetime="2020-03-20T09:10:27+08:00">2020-03-20</time>
               </span>
 
           
@@ -295,9 +551,9 @@
 <li>复制构造函数</li>
 <li>默认析构函数</li>
 <li>赋值运算符</li>
-<li>地址运算符<h2 id="友元"><a href="#友元" class="headerlink" title="友元"></a>友元</h2>友元有三种：<strong>友元函数</strong>，<strong>友元类</strong>，<strong>友元成员函数</strong><br>通过让函数成为类的友元，可以赋予该函数与类的成员函数相同的访问权限</li>
+<li>地址运算符<h2 id="友元"><a href="#友元" class="headerlink" title="友元"></a>友元</h2><h3 id="友元概念"><a href="#友元概念" class="headerlink" title="友元概念"></a>友元概念</h3>友元有三种：<strong>友元函数</strong>，<strong>友元类</strong>，<strong>友元成员函数</strong><br>通过让函数成为类的友元，可以赋予该函数与类的成员函数相同的访问权限<h3 id="创建友元函数（类内声明，类外定义）"><a href="#创建友元函数（类内声明，类外定义）" class="headerlink" title="创建友元函数（类内声明，类外定义）"></a><strong>创建友元函数</strong>（<strong>类内声明，类外定义</strong>）</h3>1) 将其原型放在<strong>类内声明</strong>，并且在原型前面加上<strong>关键字friend</strong>，也只有在类声明中才能使用该关键字</li>
 </ol>
-<h3 id="创建友元函数（类内声明，类外定义）"><a href="#创建友元函数（类内声明，类外定义）" class="headerlink" title="创建友元函数（类内声明，类外定义）"></a><strong>创建友元函数</strong>（<strong>类内声明，类外定义</strong>）</h3><p>1) 将其原型放在<strong>类内声明</strong>，并且在原型前面加上<strong>关键字friend</strong>，也只有在类声明中才能使用该关键字<br><strong>为什么友元必须类内声明？</strong><br>注：编译器必须能够读取类结构的声明以理解这个数据类型的行为的所有规则，有一条规则在所有关系中都很重要，就是<strong>哪些数据成员可以访问类的私有数据</strong><br>2) <strong>类外定义</strong>，它不是类成员函数，所以不能使用类作用域限定符::;不要在定义中使用关键字friend<br>类的友元函数是<strong>非成员函数</strong>，其访问权限与成员函数相同</p>
+<p><strong>为什么友元必须类内声明？</strong><br>注：编译器必须能够读取类结构的声明以理解这个数据类型的行为的所有规则，有一条规则在所有关系中都很重要，就是<strong>哪些数据成员可以访问类的私有数据</strong><br>2) <strong>类外定义</strong>，它不是类成员函数，所以不能使用类作用域限定符::;不要在定义中使用关键字friend<br>类的友元函数是<strong>非成员函数</strong>，其访问权限与成员函数相同</p>
 <h3 id="重载运算符：作为非成员函数还是成员函数"><a href="#重载运算符：作为非成员函数还是成员函数" class="headerlink" title="重载运算符：作为非成员函数还是成员函数"></a><strong>重载运算符：作为非成员函数还是成员函数</strong></h3><p>对于很多运算符来说，可以选择使用成员函数或非成员函数来实现运算符重载。 一般来说，非成员函数应是友元函数，这样才可以访问类的私有数据<br><strong>成员函数版本</strong>：一个操作数通过this指针隐式传递，另一个操作数作为函数参数显示传递<br><strong>非函数成员（友元）版本</strong>：两个操作数都作为参数传递<br>注意：非成员函数的重载运算符形参数目与运算符使用的操作数数目相同，成员函数所需参数少一个，因为其中一个操作数是被隐式传递的调用对象</p>
 <h2 id="类的自动转换和强制类型转换"><a href="#类的自动转换和强制类型转换" class="headerlink" title="类的自动转换和强制类型转换"></a>类的自动转换和强制类型转换</h2><p><strong>自动转换</strong>：将一个标准类型变量赋值给另一种标准类型变量时，如果这两种类型兼容，C++可以自动转换；C++不会自动转换不兼容的类型<br><strong>强制类型转换</strong>：当无法使用自动转换时，可以使用强制类型转换</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Stonewt::Stonewt(<span class="keyword">double</span> lbs)<span class="comment">//Stonewt的构造函数</span></span><br><span class="line">Stonewt myCat;<span class="comment">//创建一个Stonewt的对象myCat</span></span><br><span class="line">myCat=<span class="number">19.6</span>;<span class="comment">//赋值</span></span><br></pre></td></tr></table></figure>
@@ -714,7 +970,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-count">8</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
