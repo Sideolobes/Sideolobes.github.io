@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"sideolobes.github.io","root":"/","scheme":"Pisces","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="leetcode每日一题线性路径探测（路径压缩）问题给定整数数组 A，每次 move 操作将会选择任意 A[i]，并将其递增 1。返回使 A 中的每个值都是唯一的最少操作次数。示例 1: 123输入：[1,2,2]输出：1解释：经过一次 move 操作，数组将变为 [1, 2, 3]。 示例 2: 1234输入：[3,2,1,2,1,7]输出：6解释：经过 6 次 move 操作，数组将变为 [3">
+<meta property="og:type" content="article">
+<meta property="og:title" content="leetcode每日一题">
+<meta property="og:url" content="https://sideolobes.github.io/2020/03/22/leetcode%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%98/index.html">
+<meta property="og:site_name" content="Blog">
+<meta property="og:description" content="leetcode每日一题线性路径探测（路径压缩）问题给定整数数组 A，每次 move 操作将会选择任意 A[i]，并将其递增 1。返回使 A 中的每个值都是唯一的最少操作次数。示例 1: 123输入：[1,2,2]输出：1解释：经过一次 move 操作，数组将变为 [1, 2, 3]。 示例 2: 1234输入：[3,2,1,2,1,7]输出：6解释：经过 6 次 move 操作，数组将变为 [3">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pic.leetcode-cn.com/fd50b8a3b585ffd91c3f47d108750f73b5a8cec72f2a9ab047fc92d63efa7543-image.png">
+<meta property="og:image" content="https://pic.leetcode-cn.com/47204faec8628b9bbce133a5e4f153f9bc56147cf0b4e06d128ef50d884a4af2-image.png">
+<meta property="og:image" content="https://pic.leetcode-cn.com/361086e48c561d1fc6850bbec6033ad331c3a9d3e5cb1761f06fce09a01c00b6-image.png">
+<meta property="og:image" content="https://pic.leetcode-cn.com/4af08cd218443a0613e5fa7165a4be21ff4f1b61151f62fd964313761627283b-image.png">
+<meta property="og:image" content="https://pic.leetcode-cn.com/ad9ead058e608ff6ad9bf9c7b6ab98fe81d41eef3f008413b2582451b60255a3-image.png">
+<meta property="og:image" content="https://pic.leetcode-cn.com/73f7dcb708bf44f11dceb636e878173f7212d910e523f2700c830737483f5117-image.png">
+<meta property="article:published_time" content="2020-03-22T08:56:05.997Z">
+<meta property="article:modified_time" content="2020-03-22T09:35:26.230Z">
+<meta property="article:author" content="Sideolobes">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pic.leetcode-cn.com/fd50b8a3b585ffd91c3f47d108750f73b5a8cec72f2a9ab047fc92d63efa7543-image.png">
+
+<link rel="canonical" href="https://sideolobes.github.io/2020/03/22/leetcode%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%98/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>leetcode每日一题 | Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://sideolobes.github.io/2020/03/22/leetcode%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Sideolobes">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          leetcode每日一题
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-03-22 16:56:05 / 修改时间：17:35:26" itemprop="dateCreated datePublished" datetime="2020-03-22T16:56:05+08:00">2020-03-22</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="leetcode每日一题"><a href="#leetcode每日一题" class="headerlink" title="leetcode每日一题"></a>leetcode每日一题</h2><h3 id="线性路径探测（路径压缩）问题"><a href="#线性路径探测（路径压缩）问题" class="headerlink" title="线性路径探测（路径压缩）问题"></a>线性路径探测（路径压缩）问题</h3><p>给定整数数组 A，每次 move 操作将会选择任意 A[i]，并将其递增 1。<br>返回使 A 中的每个值都是唯一的最少操作次数。<br>示例 1:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入：[<span class="number">1</span>,<span class="number">2</span>,<span class="number">2</span>]</span><br><span class="line">输出：<span class="number">1</span></span><br><span class="line">解释：经过一次 <span class="built_in">move</span> 操作，数组将变为 [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]。</span><br></pre></td></tr></table></figure>
+<p>示例 2:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">输入：[<span class="number">3</span>,<span class="number">2</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">1</span>,<span class="number">7</span>]</span><br><span class="line">输出：<span class="number">6</span></span><br><span class="line">解释：经过 <span class="number">6</span> 次 <span class="built_in">move</span> 操作，数组将变为 [<span class="number">3</span>, <span class="number">4</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">5</span>, <span class="number">7</span>]。</span><br><span class="line">可以看出 <span class="number">5</span> 次或 <span class="number">5</span> 次以下的 <span class="built_in">move</span> 操作是不能让数组的每个值唯一的。</span><br></pre></td></tr></table></figure>
+<p>来源：力扣（LeetCode）<br>链接：<a href="https://leetcode-cn.com/problems/minimum-increment-to-make-array-unique" target="_blank" rel="noopener">https://leetcode-cn.com/problems/minimum-increment-to-make-array-unique</a><br><strong>题解</strong>：<br>作者：sweetiee<br>链接：<a href="https://leetcode-cn.com/problems/minimum-increment-to-make-array-unique/solution/ji-shu-onxian-xing-tan-ce-fa-onpai-xu-onlogn-yi-ya/" target="_blank" rel="noopener">https://leetcode-cn.com/problems/minimum-increment-to-make-array-unique/solution/ji-shu-onxian-xing-tan-ce-fa-onpai-xu-onlogn-yi-ya/</a><br>这道题就是需要把原数组映射到一个地址不冲突的区域，映射后的地址不小于原数组对应的元素。比如[3, 2, 1, 2, 1, 7]就映射成了[3, 2, 1, 4, 5, 7]。<strong>解决hash冲突的线性探测法比较相似</strong>如果地址冲突了，会探测它的下一个位置，如果下一个位置还是冲突，继续向后看，直到第一个不冲突的位置为止。</p>
+<p>关键点：<strong>因为直接线性探测可能会由于冲突导致反复探测耗时太长，因此我们可以考虑探测的过程中进行路径压缩</strong><br>怎么路径压缩呢？就是经过某条路径最终探测到一个空位置x后，将这条路径上的值都变成空位置所在的下标x，那么假如下次探测的点又是这条路径上的点，则可以直接跳转到这次探测到的空位置x，从x开始继续探测。</p>
+<p>下面用样例2：[3, 2, 1, 2, 1, 7]，来模拟一遍线性探测的过程.<br><strong>step1: 插入3：</strong><br><img src="https://pic.leetcode-cn.com/fd50b8a3b585ffd91c3f47d108750f73b5a8cec72f2a9ab047fc92d63efa7543-image.png" alt="1"><br>因为3的位置是空的，所以直接放入3即可。（此时数组变成了上图，红色表示本次的更改）</p>
+<p><strong>step2: 插入2：</strong><br><img src="https://pic.leetcode-cn.com/47204faec8628b9bbce133a5e4f153f9bc56147cf0b4e06d128ef50d884a4af2-image.png" alt="2"><br>因为2的位置是空的，所以直接放入2即可。（此时数组变成了上图，红色表示本次的更改</p>
+<p><strong>step3: 插入1：</strong><br><img src="https://pic.leetcode-cn.com/361086e48c561d1fc6850bbec6033ad331c3a9d3e5cb1761f06fce09a01c00b6-image.png" alt="3"><br>因为1的位置是空的，所以直接放入1即可。（此时数组变成了上图，红色表示本次的更改）</p>
+<p><strong>step4: 插入2：</strong><br><img src="https://pic.leetcode-cn.com/4af08cd218443a0613e5fa7165a4be21ff4f1b61151f62fd964313761627283b-image.png" alt="4"><br>此时我们发现2的位置已经有值了，于是继续向后探测，直到找到空位4，于是2映射到了4。<br>并且<strong>我们要对刚刚走过的路径2-&gt;3-&gt;4进行压缩，即将他们的值都设置为本次探测到的空位4(那么下次探测就可以直接从4往后找了)。</strong>（此时数组变成了上图，红色表示本次的更改）</p>
+<p><strong>step5: 插入1：</strong><br><img src="https://pic.leetcode-cn.com/ad9ead058e608ff6ad9bf9c7b6ab98fe81d41eef3f008413b2582451b60255a3-image.png" alt="5"><br>此时我们发现1的位置已经有值了，于是向后探测，探测到了2，发现2的位置也有值了，但是由于2在上次的过程中存了上次的空位4，所以我们直接跳转到4+1即从5开始探测就行了（而不需要重复走一遍2-&gt;3-&gt;4这条路径），此时我们发现5是个空位，因此将1映射到5，并且对与刚刚走过的路径1-&gt;2-&gt;5进行路径压缩即使其都映射到5！（此时数组变成了上图，红色表示本次的更改)</p>
+<p><strong>step6: 插入7：</strong><br><img src="https://pic.leetcode-cn.com/73f7dcb708bf44f11dceb636e878173f7212d910e523f2700c830737483f5117-image.png" alt="6"><br>因为7的位置是空的，所以直接放入7即可。（此时数组变成了上图，红色表示本次的更改）</p>
+<p><strong>代码实现：</strong></p>
+<pre><code class="C++"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> {</span>
+<span class="keyword">public</span>:
+    <span class="function"><span class="keyword">int</span> <span class="title">minIncrementForUnique</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; A)</span> </span>{
+        <span class="comment">//线性路径探测（路径压缩）</span>
+        <span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; <span class="title">pos</span><span class="params">(<span class="number">80000</span>,<span class="number">-1</span>)</span></span>;
+        <span class="keyword">int</span> res=<span class="number">0</span>;
+        <span class="keyword">for</span>(<span class="keyword">int</span> a:A)
+        {
+            <span class="keyword">int</span> b=findpos(a,pos);
+            res+=b-a;
+        }
+        <span class="keyword">return</span> res;
+    }
+    <span class="function"><span class="keyword">int</span> <span class="title">findpos</span><span class="params">(<span class="keyword">int</span> a,<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp; pos)</span></span>
+<span class="function">    </span>{
+        <span class="keyword">int</span> b=pos[a];
+        <span class="keyword">if</span>(pos[a]==<span class="number">-1</span>)
+        {
+            pos[a]=a;
+            <span class="keyword">return</span> a;
+        }<span class="comment">//a的位置是空位，直接放入</span>
+         <span class="comment">// 否则向后寻址</span>
+         <span class="comment">// 因为pos[a]中标记了上次寻址得到的空位，因此从pos[a]+1开始寻址就行了（不需要从a+1开始）</span>
+        <span class="keyword">else</span>
+        {
+            b=findpos(b+<span class="number">1</span>,pos);
+            pos[a]=b;<span class="comment">//标价上次寻址的空位，路径压缩</span>
+        }
+        <span class="keyword">return</span> b;
+    }
+};
+</code></pre>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/19/C++(STL%E6%A0%87%E5%87%86%E5%BA%93)/" rel="prev" title="C++(STL标准库)">
+      <i class="fa fa-chevron-left"></i> C++(STL标准库)
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#leetcode每日一题"><span class="nav-number">1.</span> <span class="nav-text">leetcode每日一题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#线性路径探测（路径压缩）问题"><span class="nav-number">1.1.</span> <span class="nav-text">线性路径探测（路径压缩）问题</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Sideolobes</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Sideolobes</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
