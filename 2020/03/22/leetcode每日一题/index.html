@@ -20,12 +20,12 @@
     var CONFIG = {"hostname":"sideolobes.github.io","root":"/","scheme":"Pisces","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="leetcode每日一题线性路径探测（路径压缩）问题给定整数数组 A，每次 move 操作将会选择任意 A[i]，并将其递增 1。返回使 A 中的每个值都是唯一的最少操作次数。示例 1: 123输入：[1,2,2]输出：1解释：经过一次 move 操作，数组将变为 [1, 2, 3]。 示例 2: 1234输入：[3,2,1,2,1,7]输出：6解释：经过 6 次 move 操作，数组将变为 [3">
+  <meta name="description" content="leetcode每日一题线性路径探测（路径压缩）问题给定整数数组 A，每次 move 操作将会选择任意 A[i]，并将其递增 1。返回使 A 中的每个值都是唯一的最少操作次数。示例 1: 123输入：[1,2,2]输出：1解释：经过一次 move 操作，数组将变为 [1, 2, 3]。 示例 2: 1234输入：[3,2,1,2,1,7]输出：6解释：经过 6 次 move 操作，数组将变为">
 <meta property="og:type" content="article">
 <meta property="og:title" content="leetcode每日一题">
 <meta property="og:url" content="https://sideolobes.github.io/2020/03/22/leetcode%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%98/index.html">
 <meta property="og:site_name" content="Blog">
-<meta property="og:description" content="leetcode每日一题线性路径探测（路径压缩）问题给定整数数组 A，每次 move 操作将会选择任意 A[i]，并将其递增 1。返回使 A 中的每个值都是唯一的最少操作次数。示例 1: 123输入：[1,2,2]输出：1解释：经过一次 move 操作，数组将变为 [1, 2, 3]。 示例 2: 1234输入：[3,2,1,2,1,7]输出：6解释：经过 6 次 move 操作，数组将变为 [3">
+<meta property="og:description" content="leetcode每日一题线性路径探测（路径压缩）问题给定整数数组 A，每次 move 操作将会选择任意 A[i]，并将其递增 1。返回使 A 中的每个值都是唯一的最少操作次数。示例 1: 123输入：[1,2,2]输出：1解释：经过一次 move 操作，数组将变为 [1, 2, 3]。 示例 2: 1234输入：[3,2,1,2,1,7]输出：6解释：经过 6 次 move 操作，数组将变为">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://pic.leetcode-cn.com/fd50b8a3b585ffd91c3f47d108750f73b5a8cec72f2a9ab047fc92d63efa7543-image.png">
 <meta property="og:image" content="https://pic.leetcode-cn.com/47204faec8628b9bbce133a5e4f153f9bc56147cf0b4e06d128ef50d884a4af2-image.png">
@@ -34,7 +34,7 @@
 <meta property="og:image" content="https://pic.leetcode-cn.com/ad9ead058e608ff6ad9bf9c7b6ab98fe81d41eef3f008413b2582451b60255a3-image.png">
 <meta property="og:image" content="https://pic.leetcode-cn.com/73f7dcb708bf44f11dceb636e878173f7212d910e523f2700c830737483f5117-image.png">
 <meta property="article:published_time" content="2020-03-22T08:56:05.997Z">
-<meta property="article:modified_time" content="2020-03-22T09:35:26.230Z">
+<meta property="article:modified_time" content="2020-03-22T09:50:47.292Z">
 <meta property="article:author" content="Sideolobes">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://pic.leetcode-cn.com/fd50b8a3b585ffd91c3f47d108750f73b5a8cec72f2a9ab047fc92d63efa7543-image.png">
@@ -174,7 +174,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2020-03-22 16:56:05 / 修改时间：17:35:26" itemprop="dateCreated datePublished" datetime="2020-03-22T16:56:05+08:00">2020-03-22</time>
+              <time title="创建时间：2020-03-22 16:56:05 / 修改时间：17:50:47" itemprop="dateCreated datePublished" datetime="2020-03-22T16:56:05+08:00">2020-03-22</time>
             </span>
 
           
@@ -188,7 +188,9 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="leetcode每日一题"><a href="#leetcode每日一题" class="headerlink" title="leetcode每日一题"></a>leetcode每日一题</h2><h3 id="线性路径探测（路径压缩）问题"><a href="#线性路径探测（路径压缩）问题" class="headerlink" title="线性路径探测（路径压缩）问题"></a>线性路径探测（路径压缩）问题</h3><p>给定整数数组 A，每次 move 操作将会选择任意 A[i]，并将其递增 1。<br>返回使 A 中的每个值都是唯一的最少操作次数。<br>示例 1:</p>
+        <meta name="referrer" content="no-referrer"/>
+
+<h2 id="leetcode每日一题"><a href="#leetcode每日一题" class="headerlink" title="leetcode每日一题"></a>leetcode每日一题</h2><h3 id="线性路径探测（路径压缩）问题"><a href="#线性路径探测（路径压缩）问题" class="headerlink" title="线性路径探测（路径压缩）问题"></a>线性路径探测（路径压缩）问题</h3><p>给定整数数组 A，每次 move 操作将会选择任意 A[i]，并将其递增 1。<br>返回使 A 中的每个值都是唯一的最少操作次数。<br>示例 1:</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入：[<span class="number">1</span>,<span class="number">2</span>,<span class="number">2</span>]</span><br><span class="line">输出：<span class="number">1</span></span><br><span class="line">解释：经过一次 <span class="built_in">move</span> 操作，数组将变为 [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]。</span><br></pre></td></tr></table></figure>
 <p>示例 2:</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">输入：[<span class="number">3</span>,<span class="number">2</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">1</span>,<span class="number">7</span>]</span><br><span class="line">输出：<span class="number">6</span></span><br><span class="line">解释：经过 <span class="number">6</span> 次 <span class="built_in">move</span> 操作，数组将变为 [<span class="number">3</span>, <span class="number">4</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">5</span>, <span class="number">7</span>]。</span><br><span class="line">可以看出 <span class="number">5</span> 次或 <span class="number">5</span> 次以下的 <span class="built_in">move</span> 操作是不能让数组的每个值唯一的。</span><br></pre></td></tr></table></figure>
